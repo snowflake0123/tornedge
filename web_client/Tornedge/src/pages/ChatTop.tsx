@@ -22,12 +22,21 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     }
   }
 
-  const createRandomId = () => {
+  const handleClickCreateRoom = () => {
+    props.history.push('/chatRoom');
+  }
 
+  const handleClickEnterRoom = () => {
+    props.history.push('/chatRoom');
+  }
+
+  const createChatRoomId = () => {
+    // Get ChatRoomID
   }
 
   return (
     <IonPage>
+      {/* Header */}
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
@@ -36,14 +45,24 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
           <IonTitle>Chat</IonTitle>
         </IonToolbar>
       </IonHeader>
+
+      {/* Content */}
       <IonContent>
         <div className="centered">
+          {/* Icon */}
           <IonIcon icon={receiptSharp} className="huge-icon ion-margin-bottom"/>
+          {/* Create Room Button */}
           <IonButton size="large" strong={true} onClick={() => {
-
-                                                                  props.history.push('/chatRoom')
-                                                                }}>
-            <IonIcon icon={image} className="ion-margin-end" />Choose Photo
+            props.history.push('/chatRoom')
+          }}>
+            <IonIcon icon={image} className="ion-margin-end" />Create Room
+            <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" />
+          </IonButton>
+          {/* Enter Room Button */}
+          <IonButton size="large" strong={true} onClick={() => {
+            props.history.push('/chatRoom')
+          }}>
+            <IonIcon icon={image} className="ion-margin-end" />Enter Room
             <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" />
           </IonButton>
         </div>
