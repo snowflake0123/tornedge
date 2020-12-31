@@ -103,22 +103,27 @@ const MsgList: React.FC<Messages> = (props) => {
 const ChatRoom: React.FC = () => {
   return (
     <IonPage>
+      {/* Header */}
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonBackButton defaultHref="/chatTop" />
           </IonButtons>
           <IonTitle>Chat -Chat Room-</IonTitle>
+          {/* Send Button */}
           <IonButtons slot="end">
             <IonButton fill="clear" size="small">Send</IonButton>
           </IonButtons>
         </IonToolbar>
         <IonToolbar color="primary" style={{padding:"4px 8px"}}>
+          {/* Input Form */}
           <form>
             <IonTextarea className="ion-margin-start" autoGrow={true} rows={1} placeholder="Message" name="message" required></IonTextarea>
           </form>
         </IonToolbar>
       </IonHeader>
+
+      {/* Chat Space */}
       <IonContent>
         <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
           <IonRefresherContent
@@ -130,6 +135,7 @@ const ChatRoom: React.FC = () => {
         </IonRefresher>
         <MsgList messages={testMessages} />
       </IonContent>
+
     </IonPage>
   );
 };
