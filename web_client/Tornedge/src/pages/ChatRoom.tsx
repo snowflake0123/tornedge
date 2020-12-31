@@ -19,6 +19,8 @@ import React from 'react';
 import './ChatRoom.css';
 import { RefresherEventDetail } from '@ionic/core';
 import { chevronDownCircleOutline } from 'ionicons/icons';
+import { IonReactRouter } from '@ionic/react-router';
+import { RouteComponentProps } from 'react-router';
 
 function doRefresh(event: CustomEvent<RefresherEventDetail>) {
   console.log('Begin async operation');
@@ -100,14 +102,23 @@ const MsgList: React.FC<Messages> = (props) => {
   )
 }
 
-const ChatRoom: React.FC = () => {
+
+const ChatRoom: React.FC<RouteComponentProps> = (props) => {
+  
+  const handleClickBack = () => {
+    props.history.goBack();
+    // Function
+    //   Step1: Send ID and command
+    //   Step2: Change ID's chatflag data to false
+  }
+
   return (
     <IonPage>
       {/* Header */}
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/chatTop" />
+            <IonButton fill="clear" size="small" onClick={() => handleClickBack()}>Back</IonButton>
           </IonButtons>
           <IonTitle>Chat -Chat Room-</IonTitle>
           {/* Send Button */}

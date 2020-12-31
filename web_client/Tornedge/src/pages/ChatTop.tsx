@@ -23,10 +23,16 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
   }
 
   const handleClickCreateRoom = () => {
+    // Funtion 
+    //   Send ID and change value of chatflag to true
     props.history.push('/chatRoom');
   }
 
   const handleClickEnterRoom = () => {
+    // Function
+    //  Step1(client): Send ID 
+    //  Step2(server): matching with other pieces of paper
+    //  Step3(server): receive chatRoom ID
     props.history.push('/chatRoom');
   }
 
@@ -51,6 +57,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
         <div className="centered">
           {/* Icon */}
           <IonIcon icon={receiptSharp} className="huge-icon ion-margin-bottom"/>
+
           {/* Create Room Button */}
           <IonButton size="large" strong={true} onClick={() => {
             props.history.push('/chatRoom')
@@ -58,6 +65,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
             <IonIcon icon={image} className="ion-margin-end" />Create Room
             <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" />
           </IonButton>
+
           {/* Enter Room Button */}
           <IonButton size="large" strong={true} onClick={() => {
             props.history.push('/chatRoom')
