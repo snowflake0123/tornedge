@@ -1,0 +1,9 @@
+CREATE TABLE paper(
+    id INTEGER PRIMARY KEY,
+    fs_x TEXT,
+    fs_y TEXT,
+    fh FLOAT,
+    fa FLOAT,
+    fp TEXT,
+    image_path TEXT
+);

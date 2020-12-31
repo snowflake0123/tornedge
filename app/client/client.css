@@ -1,0 +1,372 @@
+/*----------------------------//
+// Written by Shion Tominaga  //
+//----------------------------*/
+
+html, body {
+    width:100%;
+    height:100vh;
+    overflow:hidden;
+    margin:0;
+    padding:0;
+    border:none;
+    font-family: "メイリオ", sans-serif;
+}
+
+h1#title {
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    margin: 0px 0px 20px 0px;
+    padding: 20px 0px 20px 20px;
+    font-size: 700%;
+    color: #FFFFFF;
+    background-color: #336699;
+}
+
+h2 {
+    font-size: 500%;
+    color: #333333;
+    margin: 0px 0px 5px 20px;
+}
+
+.client_type input {
+      display: none;
+}
+.client_type label{
+      display: block;
+      float: left;
+    width: 300px;
+    margin: 0px 0px 20px 20px;
+    padding: 50px;
+    background: #bdc3c7;
+    color: #869198;
+    font-size: 450%;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    transition: .2s;
+}
+.client_type label:first-of-type{
+    border-radius: 30px 0 0 30px;
+}
+.client_type label:last-of-type{
+    border-radius: 0 30px 30px 0;
+}
+.client_type input[type="radio"]:checked + .switch-left {
+    background-color: #336699;
+      color: #fff;
+}
+.client_type input[type="radio"]:checked + .switch-right {
+    background-color: #336699;
+      color: #fff;
+}
+
+#client_name, #information {
+    height: 90px;
+    width: 75vw;
+    border: 0;
+    padding: 10px;
+    font-size: 450%;
+    color: #333333;
+    border: solid 10px #ccc;
+    margin: 0px 0px 40px 20px;
+    -webkit-border-radius: 16px;
+    -moz-border-radius: 16px;
+    border-radius: 16px;
+}
+
+#receiptlabel {
+    display: block;
+    width: 40vw;
+    margin: 0px 0px 30px 20px;
+    font-size: 450%;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #336699;
+    padding: 24px 36px 24px 36px;
+    border-radius: 90px;
+}
+
+#imglabel {
+    display: block;
+    width: 40vw;
+    margin: 0px 0px 30px 20px;
+    font-size: 450%;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #336699;
+    padding: 24px 36px 24px 36px;
+    border-radius: 90px;
+}
+
+#receiptname, #imagename {
+    margin: 20px 0px 20px 20px;
+    display: block;
+    font-size: 40px;
+    font-weight: bold;
+    color: #336699;
+}
+
+#btn {
+    position: relative;
+    top: 25px;
+    margin: 0 auto;
+    padding: 0.5em 1em;
+    text-align: center;
+    line-height: 150px;
+    font-size: 650%;
+    font-weight: bold;
+    height: 150px;
+    width: 45vw;
+    background: #333333;
+    color: #FFFFFF;
+    border-bottom: solid 40px #888888;
+    border-radius: 25px;
+}
+#btn:active {
+    -ms-transform: translateY(40px);
+    -webkit-transform: translateY(40px);
+    transform: translateY(40px);
+    border-bottom: none;
+}
+
+/* ----- modal window ----- */
+#modal {
+    left:0;
+    top:0;
+}
+
+.modal-overlay {
+    z-index:2;
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100vh;
+    background-color:rgba(0,0,0,.5);
+}
+
+.modal-content {
+    position:fixed;
+    display:none;
+    z-index:3;
+    max-width:100vw;
+    max-height:100vh;
+    margin:10px;
+    padding:15px;
+    border-radius:20px;
+    background:#fff;
+}
+.modal-content img {
+    max-width:90vmin;
+    max-height:90vmin;
+}
+.modal-content h1 {
+    font-size:300%;
+    max-width:100vw;
+    margin-bottom:0.5em;
+}
+.modal-content p {
+    font-size:225%;
+    max-width:100vw;
+    text-align:left;
+}
+a.modal-close {
+    position:absolute;
+    top:0;
+    right:35px;
+    color:#336699;
+    font-size:128px;
+    line-height:1;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+
+/* iPad Air 3 */
+@media only screen
+    and (device-width : 834px)
+    and (device-height : 1112px)
+    and (-webkit-device-pixel-ratio : 2) {
+    html, body {
+        width:100%;
+        height:100vh;
+        overflow:hidden;
+        margin:0;
+        padding:0;
+        border:none;
+        font-family: "メイリオ", sans-serif;
+    }
+
+    h1#title {
+        top: 0px;
+        left: 0px;
+        width: 100vw;
+        margin: 0px 0px 20px 0px;
+        padding: 20px 0px 20px 20px;
+        font-size: 350%;
+        color: #FFFFFF;
+        background-color: #336699;
+    }
+
+    h2 {
+        font-size:  250%;
+        color: #333333;
+        margin: 0px 0px 5px 20px;
+    }
+
+    .client_type input {
+          display: none;
+    }
+    .client_type label{
+        display: block;
+        float: left;
+        width: 125px;
+        margin: 0px 0px 20px 20px;
+        padding: 20px;
+        background: #bdc3c7;
+        color: #869198;
+        font-size: 200%;
+        font-weight: bold;
+        text-align: center;
+        line-height: 1;
+        transition: .2s;
+    }
+    .client_type label:first-of-type{
+        border-radius: 30px 0 0 30px;
+    }
+    .client_type label:last-of-type{
+        border-radius: 0 30px 30px 0;
+    }
+    .client_type input[type="radio"]:checked + .switch-left {
+        background-color: #336699;
+          color: #fff;
+    }
+    .client_type input[type="radio"]:checked + .switch-right {
+        background-color: #336699;
+          color: #fff;
+    }
+
+    #client_name, #information {
+        height: 90px;
+        width: 75vw;
+        border: 0;
+        padding: 10px;
+        font-size: 300%;
+        color: #333333;
+        border: solid 10px #ccc;
+        margin: 0px 0px 40px 20px;
+        -webkit-border-radius: 16px;
+        -moz-border-radius: 16px;
+        border-radius: 16px;
+    }
+
+    #receiptlabel {
+        display: block;
+        width: 20vw;
+        margin: 0px 0px 15px 20px;
+        font-size: 200%;
+        font-weight: bold;
+        color: #FFFFFF;
+        background-color: #336699;
+        padding: 12px 18px 12px 18px;
+        border-radius: 90px;
+    }
+
+    #imglabel {
+        display: block;
+        width: 20vw;
+        margin: 0px 0px 15px 20px;
+        font-size: 200%;
+        font-weight: bold;
+        color: #FFFFFF;
+        background-color: #336699;
+        padding: 12px 18px 12px 18px;
+        border-radius: 90px;
+    }
+
+    #receiptname, #imagename {
+        margin: 20px 0px 20px 20px;
+        display: block;
+        font-size: 20px;
+        font-weight: bold;
+        color: #336699;
+    }
+
+    #btn {
+        position: relative;
+        top: 25px;
+        margin: 0 auto;
+        padding: 0.5em 1em;
+        text-align: center;
+        line-height: 50px;
+        font-size: 300%;
+        font-weight: bold;
+        height: 40px;
+        width: 25vw;
+        background: #333333;
+        color: #FFFFFF;
+        border-bottom: solid 40px #888888;
+        border-radius: 25px;
+    }
+    #btn:active {
+        -ms-transform: translateY(30px);
+        -webkit-transform: translateY(30px);
+        transform: translateY(30px);
+        border-bottom: none;
+    }
+
+    /* ----- modal window ----- */
+    #modal {
+        left:0;
+        top:0;
+    }
+
+    .modal-overlay {
+        z-index:2;
+        display:none;
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100vh;
+        background-color:rgba(0,0,0,.5);
+    }
+
+    .modal-content {
+        position:fixed;
+        display:none;
+        z-index:3;
+        max-width:100vw;
+        max-height:100vh;
+        margin:10px;
+        padding:15px;
+        border-radius:20px;
+        background:#fff;
+    }
+    .modal-content img {
+        max-width:90vmin;
+        max-height:90vmin;
+    }
+    .modal-content h1 {
+        font-size:300%;
+        max-width:100vw;
+        margin-bottom:0.5em;
+    }
+    .modal-content p {
+        font-size:225%;
+        max-width:100vw;
+        text-align:left;
+    }
+    a.modal-close {
+        position:absolute;
+        top:0;
+        right:35px;
+        color:#336699;
+        font-size:128px;
+        line-height:1;
+        font-weight:bold;
+        text-decoration:none;
+    }
+}
