@@ -1,0 +1,16 @@
+.footer-button {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.display-none {
+  display:none;
+}
+
+.choose-button {
+  color: white;
+  background-color: var(--ion-color-primary);
+  padding: 10px 20px;
+  border-radius: 10px;
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Tornedge",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
