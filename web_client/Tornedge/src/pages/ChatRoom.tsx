@@ -13,14 +13,18 @@ import {
   IonRefresherContent,
   IonTextarea,
   IonTitle,
-  IonToolbar
+  IonToolbar,
+  useIonViewWillEnter,
+  IonInput,
 } from '@ionic/react';
-import React from 'react';
+import React, { useState } from 'react';
 import './ChatRoom.css';
 import { RefresherEventDetail } from '@ionic/core';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 import { IonReactRouter } from '@ionic/react-router';
 import { RouteComponentProps } from 'react-router';
+import axios from 'axios';
+import { convertCompilerOptionsFromJson, setConstantValue } from 'typescript';
 
 function doRefresh(event: CustomEvent<RefresherEventDetail>) {
   console.log('Begin async operation');
@@ -104,13 +108,39 @@ const MsgList: React.FC<Messages> = (props) => {
 
 
 const ChatRoom: React.FC<RouteComponentProps> = (props) => {
+  const [message, setMessage] = useState('')
   
   const handleClickBack = () => {
-    props.history.goBack();
     // Function
     //   Step1: Send ID and command
     //   Step2: Change ID's chatflag data to false
+    props.history.goBack(); 
   }
+
+  const handleClickSend = () => {
+    console.log(message);
+    setMessage('');
+  }
+
+  const handleClickUpdate = () => {
+
+  }
+
+  useIonViewWillEnter(() => {
+    console.log('[API] enter_chat_room')
+
+    const formData = new FormData();
+    formData.append('cmd', 'enter_chat_room');
+    formData.append('image_id', '1');
+
+    axios.post('localhost:', formData).then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    
+  })
 
   return (
     <IonPage>
@@ -121,16 +151,6 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
             <IonButton fill="clear" size="small" onClick={() => handleClickBack()}>Back</IonButton>
           </IonButtons>
           <IonTitle>Chat -Chat Room-</IonTitle>
-          {/* Send Button */}
-          <IonButtons slot="end">
-            <IonButton fill="clear" size="small">Send</IonButton>
-          </IonButtons>
-        </IonToolbar>
-        <IonToolbar color="primary" style={{padding:"4px 8px"}}>
-          {/* Input Form */}
-          <form>
-            <IonTextarea className="ion-margin-start" autoGrow={true} rows={1} placeholder="Message" name="message" required></IonTextarea>
-          </form>
         </IonToolbar>
       </IonHeader>
 
@@ -146,6 +166,24 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
         </IonRefresher>
         <MsgList messages={testMessages} />
       </IonContent>
+
+      {/* Input */}
+      <IonItem>
+        <IonInput
+          className="ion-margin-start" 
+          color="Midium" 
+          placeholder="Message" 
+          value={message}
+          onIonChange={e => setMessage(e.detail.value!)}
+          required
+          >
+        </IonInput>
+      </IonItem>
+      <div className="ion-padding">
+        <IonButton color="success" expand="block" onClick={() => handleClickSend()}>Send</IonButton>
+      </div>
+
+
 
     </IonPage>
   );
