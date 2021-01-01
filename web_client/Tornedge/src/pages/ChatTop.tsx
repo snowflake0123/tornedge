@@ -14,7 +14,11 @@ import { RouteComponentProps } from 'react-router-dom'
 import './ChatTop.css';
 import { receiptSharp, image } from 'ionicons/icons';
 
+import axios, { AxiosResponse } from 'axios';
+
 const ChatTop: React.FC<RouteComponentProps> = (props) => {
+  const url: string = "localhost:56060";
+
   const inputPhotoRef = React.useRef<HTMLInputElement>(null);
   const handleClickPhoto = () => {
     if(inputPhotoRef && inputPhotoRef.current) {
@@ -22,22 +26,24 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     }
   }
 
-  const handleClickCreateRoom = () => {
-    // Funtion 
-    //   Send ID and change value of chatflag to true
+  const handleClickCreateCRoom = (url: string) => {
+    console.log('[API] create_chat_room')
+    const formData = new FormData();
+    formData.append('cmd', 'create_chat_room');
+    formData.append('image_id', '1');
+
+    // Send data using axios
+    axios.post(url, formData).then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
     props.history.push('/chatRoom');
   }
 
   const handleClickEnterRoom = () => {
-    // Function
-    //  Step1(client): Send ID 
-    //  Step2(server): matching with other pieces of paper
-    //  Step3(server): receive chatRoom ID
     props.history.push('/chatRoom');
-  }
-
-  const createChatRoomId = () => {
-    // Get ChatRoomID
   }
 
   return (

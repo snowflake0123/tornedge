@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__    = 'Shion Tominaga'
+import morphology
+import numpy as np
+import cv2
+import math
+__author__ = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2020 Miyata Lab.'
 
 
 # Standard library imports.
-import math
 
 # Related third party imports.
-import cv2
-import numpy as np
 
 # Local application/library specific imports.
-import morphology
 
 
 class TearExtractor():
@@ -21,7 +21,6 @@ class TearExtractor():
         self.ipm = ipm
         self.morph = morphology.Morphology()
         self.DEBUG_FLAG = self.ipm.get_debug_flag_status()
-
 
     def detect_edge_by_canny_method(self, src_image):
         """
@@ -37,19 +36,21 @@ class TearExtractor():
         edge_detected_image : numpy.ndarray
             エッジ検出後の画像。画像の色空間はBGR。
         """
-        image               = src_image.copy()
-        gray_image          = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        edge_detected_image = cv2.Canny(gray_image, 0, 0, apertureSize=7, L2gradient=True)
-        edge_detected_image = cv2.cvtColor(edge_detected_image, cv2.COLOR_GRAY2BGR)
+        image = src_image.copy()
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        edge_detected_image = cv2.Canny(
+            gray_image, 0, 0, apertureSize=7, L2gradient=True)
+        edge_detected_image = cv2.cvtColor(
+            edge_detected_image, cv2.COLOR_GRAY2BGR)
 
-        edge_detected_image = self.morph.closing(edge_detected_image, (3,3))
+        edge_detected_image = self.morph.closing(edge_detected_image, (3, 3))
 
         if self.DEBUG_FLAG:
-            cv2.imwrite(str(self.ipm.IMG_SAVE_CNT).zfill(2) + '_edge_detected(canny).jpg', edge_detected_image)
-            self.ipm.IMG_SAVE_CNT+=1
+            cv2.imwrite(str(self.ipm.IMG_SAVE_CNT).zfill(2) +
+                        '_edge_detected(canny).jpg', edge_detected_image)
+            self.ipm.IMG_SAVE_CNT += 1
 
         return edge_detected_image
-
 
     def extract_white_pixel_coordinates(self, src_bin_image):
         """
@@ -65,12 +66,12 @@ class TearExtractor():
         white_pixel_coordinates : list
             画像中から抽出された白いピクセルの座標群。
         """
-        image             = src_bin_image.copy()
-        gray_image        = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image = src_bin_image.copy()
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         is_white_in_grayimage = (gray_image >= 128)
 
-        gray_image_width  = gray_image.shape[1]
+        gray_image_width = gray_image.shape[1]
         gray_image_height = gray_image.shape[0]
 
         white_pixel_coordinates = []
@@ -80,7 +81,6 @@ class TearExtractor():
                     white_pixel_coordinates.append([x, y])
 
         return white_pixel_coordinates
-
 
     def find_closest_pixel_to_end_of_tear(self, pixel_coordinates, end_of_tear):
         """
@@ -98,18 +98,17 @@ class TearExtractor():
         nearest_coord : list
             破れ目の端に最も近いピクセル。1次元リスト。
         """
-        min_dist      = float('inf')
+        min_dist = float('inf')
         nearest_coord = [0, 0]
 
         for coordinate in pixel_coordinates:
-            dist = math.sqrt( (coordinate[0] - end_of_tear[0]) ** 2 + \
-                              (coordinate[1] - end_of_tear[1]) ** 2 )
+            dist = math.sqrt((coordinate[0] - end_of_tear[0]) ** 2 +
+                             (coordinate[1] - end_of_tear[1]) ** 2)
             if dist < min_dist:
-                min_dist      = dist
+                min_dist = dist
                 nearest_coord = coordinate
 
         return nearest_coord
-
 
     def chase_white_pixels(self, edge_detected_image, start_pixel, goal_pixel):
         """
@@ -129,67 +128,67 @@ class TearExtractor():
         passed_pixels : list
             追跡中に通過した白ピクセルの座標群。2次元リスト。
         """
-        image           = edge_detected_image.copy()
-        gray_image      = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        curr_pixel      = start_pixel
-        passed_pixels   = []
+        image = edge_detected_image.copy()
+        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        curr_pixel = start_pixel
+        passed_pixels = []
         mistaken_pixels = []
 
         while not np.allclose(curr_pixel, goal_pixel) and curr_pixel[0] <= goal_pixel[0]:
             if gray_image.item(curr_pixel[1], curr_pixel[0]) >= 128:
                 # Checks right pixel.
                 if gray_image.item(curr_pixel[1], curr_pixel[0]+1) >= 128 and \
-                              [curr_pixel[0]+1, curr_pixel[1]] not in passed_pixels and \
-                              [curr_pixel[0]+1, curr_pixel[1]] not in mistaken_pixels:
+                    [curr_pixel[0]+1, curr_pixel[1]] not in passed_pixels and \
+                        [curr_pixel[0]+1, curr_pixel[1]] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0]+1, curr_pixel[1]]
 
                 # Checks upper right pixel.
                 elif gray_image.item(curr_pixel[1]-1, curr_pixel[0]+1) >= 128 and \
-                                [curr_pixel[0]+1, curr_pixel[1]-1] not in passed_pixels and \
-                                [curr_pixel[0]+1, curr_pixel[1]-1] not in mistaken_pixels:
+                    [curr_pixel[0]+1, curr_pixel[1]-1] not in passed_pixels and \
+                        [curr_pixel[0]+1, curr_pixel[1]-1] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0]+1, curr_pixel[1]-1]
 
                 # Checks lower right pixel.
                 elif gray_image.item(curr_pixel[1]+1, curr_pixel[0]+1) >= 128 and \
-                                [curr_pixel[0]+1, curr_pixel[1]+1] not in passed_pixels and \
-                                [curr_pixel[0]+1, curr_pixel[1]+1] not in mistaken_pixels:
+                    [curr_pixel[0]+1, curr_pixel[1]+1] not in passed_pixels and \
+                        [curr_pixel[0]+1, curr_pixel[1]+1] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0]+1, curr_pixel[1]+1]
 
                 # Checks upper pixel.
                 elif gray_image.item(curr_pixel[1]-1, curr_pixel[0]) >= 128 and \
-                                [curr_pixel[0], curr_pixel[1]-1] not in passed_pixels and \
-                                [curr_pixel[0], curr_pixel[1]-1] not in mistaken_pixels:
+                    [curr_pixel[0], curr_pixel[1]-1] not in passed_pixels and \
+                        [curr_pixel[0], curr_pixel[1]-1] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0], curr_pixel[1]-1]
 
                 # Checks lower pixel.
                 elif gray_image.item(curr_pixel[1]+1, curr_pixel[0]) >= 128 and \
-                                [curr_pixel[0], curr_pixel[1]+1] not in passed_pixels and \
-                                [curr_pixel[0], curr_pixel[1]+1] not in mistaken_pixels:
+                    [curr_pixel[0], curr_pixel[1]+1] not in passed_pixels and \
+                        [curr_pixel[0], curr_pixel[1]+1] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0], curr_pixel[1]+1]
 
                 # Checks upper left pixel.
                 elif gray_image.item(curr_pixel[1]-1, curr_pixel[0]-1) >= 128 and \
-                                [curr_pixel[0]-1, curr_pixel[1]-1] not in passed_pixels and \
-                                [curr_pixel[0]-1, curr_pixel[1]-1] not in mistaken_pixels:
+                    [curr_pixel[0]-1, curr_pixel[1]-1] not in passed_pixels and \
+                        [curr_pixel[0]-1, curr_pixel[1]-1] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0]-1, curr_pixel[1]-1]
 
                 # Checks lower left pixel.
                 elif gray_image.item(curr_pixel[1]+1, curr_pixel[0]-1) >= 128 and \
-                                [curr_pixel[0]-1, curr_pixel[1]+1] not in passed_pixels and \
-                                [curr_pixel[0]-1, curr_pixel[1]+1] not in mistaken_pixels:
+                    [curr_pixel[0]-1, curr_pixel[1]+1] not in passed_pixels and \
+                        [curr_pixel[0]-1, curr_pixel[1]+1] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0]-1, curr_pixel[1]+1]
 
                 # Checks left pixel.
                 elif gray_image.item(curr_pixel[1], curr_pixel[0]-1) >= 128 and \
-                                [curr_pixel[0]-1, curr_pixel[1]] not in passed_pixels and \
-                                [curr_pixel[0]-1, curr_pixel[1]] not in mistaken_pixels:
+                    [curr_pixel[0]-1, curr_pixel[1]] not in passed_pixels and \
+                        [curr_pixel[0]-1, curr_pixel[1]] not in mistaken_pixels:
                     passed_pixels.append(curr_pixel)
                     curr_pixel = [curr_pixel[0]-1, curr_pixel[1]]
 
@@ -200,7 +199,6 @@ class TearExtractor():
                     del passed_pixels[-1]
 
         return passed_pixels
-
 
     def extract_tear(self, preprocessed_image, left_end, right_end):
         """
@@ -222,21 +220,26 @@ class TearExtractor():
         edge_detected_image : numpy.ndarray
             エッジ検出後の画像。画像の色空間はBGR。
         """
-        image               = preprocessed_image.copy()
+        image = preprocessed_image.copy()
         edge_detected_image = self.detect_edge_by_canny_method(image)
 
-        white_pixel_coordinates    = self.extract_white_pixel_coordinates(edge_detected_image)
-        closest_pixel_to_left_end  = self.find_closest_pixel_to_end_of_tear(white_pixel_coordinates, left_end)
-        closest_pixel_to_right_end = self.find_closest_pixel_to_end_of_tear(white_pixel_coordinates, right_end)
+        white_pixel_coordinates = self.extract_white_pixel_coordinates(
+            edge_detected_image)
+        closest_pixel_to_left_end = self.find_closest_pixel_to_end_of_tear(
+            white_pixel_coordinates, left_end)
+        closest_pixel_to_right_end = self.find_closest_pixel_to_end_of_tear(
+            white_pixel_coordinates, right_end)
 
-        tear_coordinates = self.chase_white_pixels(edge_detected_image, closest_pixel_to_left_end, closest_pixel_to_right_end)
+        tear_coordinates = self.chase_white_pixels(
+            edge_detected_image, closest_pixel_to_left_end, closest_pixel_to_right_end)
 
         if self.DEBUG_FLAG:
             # canny_img = np.zeros(image.shape)
             # self.ipm.draw_circles(canny_img, white_pixel_coordinates, 3, (0,0,255))
             # cv2.imwrite('canny_red.jpg', canny_img)
-            self.ipm.draw_circles(image, tear_coordinates, 5, (0,0,255))
-            cv2.imwrite(str(self.ipm.IMG_SAVE_CNT).zfill(2) + '_tear_extracted.jpg', image)
-            self.ipm.IMG_SAVE_CNT+=1
+            self.ipm.draw_circles(image, tear_coordinates, 5, (0, 0, 255))
+            cv2.imwrite(str(self.ipm.IMG_SAVE_CNT).zfill(
+                2) + '_tear_extracted.jpg', image)
+            self.ipm.IMG_SAVE_CNT += 1
 
         return tear_coordinates, edge_detected_image
