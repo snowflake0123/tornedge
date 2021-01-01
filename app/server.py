@@ -62,97 +62,253 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
     def do_POST(self):
         os.environ['REQUEST_METHOD'] = 'POST'
         form = cgi.FieldStorage(self.rfile, self.headers)
-
-        if form['cmd'] == 'create_chat_room':
+        cmd = form['cmd'].value
+        print('[info] Recieve data from client------')
+        print('cmd: ', cmd)
+        #--------------#   
+        # Upload_image #
+        #--------------#
+        if cmd == 'upload_image':
             try:
-                image_id = int(form['image_id'])
-                response_body = ({
-                    'cmd': form['cmd'],
+                image = form['image'].value
+                
+                #紙片の特徴量を抽出
+                features =  self.extract_features(image)
+
+                # TODO:
+                #  抽出した特徴量をDBに登録
+                #  image_idを返してもらう
+
+                response_body = {
+                    'cmd': cmd,
                     'data': {
                         'result': 'success',
-                        'message': 'Successfully to create the chat room.'
+                        'message': 'The image has been uploaded.',
+                        'image_id': '1'
                     }
-                })
-            except:
-                logger.error('Failed to create the chat room.')
-                reponse_body = ({
-                    'cmd': form['cmd'],
+                }
+            except KeyError as e:
+                print('[ERROR] Error occured in upload_image')
+                response_body = {
+                    'cmd': cmd,
                     'data': {
                         'result': 'failure',
-                        'message': 'Failed to create the chat room.'
+                        'message': 'Failed to upload image.',
+                        'image_id': '1'
                     }
-                })
+                }
+        #-------------#
+        # Upload_file #
+        #-------------#
+        elif cmd == 'upload_file':
+            try:
+                image_id = int(form['image_id'])
+                file_name = form['file'].filename
+                file_data = form['file'].value
+                self.save_content_file(file_name, file_data)
 
-        client_type = form['type'].value
-        client_receiptname = form['receipt'].filename
-        client_receiptdata = form['receipt'].value
-        client_imagename = form['image'].filename
-        client_imagedata = form['image'].value
+                # TODO:file_pathをDBに保存する
+                file_path = './client_data/files/' + file_name
 
-        logger.info('Receipt name: %s' % client_receiptname)
-        print('Receipt name: %s' % client_receiptname)
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'The image has been uploaded.',
+                        'image_id': '1'
+                    }
+                }
+            except:
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to upload image.',
+                        'image_id': '1'
+                    }
+                }
+
+        #--------------#
+        # receive_file #
+        #--------------#
+        elif cmd == 'download_file':
+            try:
+                image_id = int(form['image_id'].value)
+                # TODO:
+                #  image_idの紙片とfile_pathがある紙片とでマッチング処理をする
+                #  マッチング相手のfile_pathの値を返す
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to download the file.',
+                        'file_path': './client_data/files/a.png'
+                    }
+                }
+            except:
+                logger.error('Failed to download the file.');
+                reponse_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to create the chat room.',
+                        'chat_room_id': '1',
+                    }
+                }
+
+        #------------------#
+        # Create_chat_room #
+        #------------------#
+        elif cmd == 'create_chat_room':
+            try:
+                image_id = int(form['image_id'])
+                # TODO:
+                #  image_idの行のchat_room_idを決定，代入
+                #  chat_room_idを元にDBのテーブル or ファイルを作成
+                #  chat_room_idを返す
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to create the chat room.',
+                        'chat_room_id': '1'
+                    }
+                }
+            except:
+                logger.error('Failed to create the chat room.')
+                reponse_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to create the chat room.',
+                        'chat_room_id': '1',
+                    }
+                }
+
+        #-----------------#
+        # Enter_chat_room #
+        #-----------------#
+        elif cmd == 'enter_chat_room':
+            try:
+                image_id = int(form['image_id'].value)
+                # TODO:
+                #  image_idの紙片とchat_room_idに値がある紙片でマッチングさせる
+                #  マッチング相手のchat_room_idを返す 
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to enter the chat room.',
+                        'chat_room_id': '1'
+                    }
+                }
+            except:
+                logger.error('Failed to create the chat room.')
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to enter the chat room.',
+                        'chat_room_id': '1'
+                    }
+                }
+
+        #----------------#
+        # Exit_chat_room #
+        #----------------#
+        elif cmd == 'exit_chat_room':
+            try:
+                image_id = int(form['image_id'].value)
+                # image_idの行のchat_room_idを削除する
+                # chat_room_idのDBテーブル or ファイルを削除する
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to exit the chat room.',
+                    }
+                }
+            except:
+                console.log('[ERROR] Error occured in exit_chat_room')
+                logger.error('Error occured in exit_chat_room')
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to exit the chat room.',
+                    }
+                }
+
+        # client_type = form['type'].value
+        # client_receiptname = form['receipt'].filename
+        # client_receiptdata = form['receipt'].value
+        # client_imagename = form['image'].filename
+        # client_imagedata = form['image'].value
+
+        # logger.info('Receipt name: %s' % client_receiptname)
+        # print('Receipt name: %s' % client_receiptname)
 
         #--------#
         # Sender #
         #--------#
-        if client_type == 'sender':
-            if client_receiptdata == 'undefined' or client_imagedata == 'undefined':
-                response_body = self.make_message_response_body(
-                    '[ERROR] Receipt/image is not attached.')
-            else:
-                # Saves the content image.
-                client_imagename = dt.datetime.now().strftime(
-                    '%Y%m%d_%H%M%S%f_') + client_imagename
-                self.save_content_image(client_imagename, client_imagedata)
+        # if client_type == 'sender':
+        #     if client_receiptdata == 'undefined' or client_imagedata == 'undefined':
+        #         response_body = self.make_message_response_body(
+        #             '[ERROR] Receipt/image is not attached.')
+        #     else:
+        #         # Saves the content image.
+        #         client_imagename = dt.datetime.now().strftime(
+        #             '%Y%m%d_%H%M%S%f_') + client_imagename
+        #         self.save_content_image(client_imagename, client_imagedata)
 
-                # Calculates the receipt features and stores them into the DB.
-                features = self.extract_features(client_receiptdata)
-                logger.info('Sender receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % (features['shape_x'],
-                                                                                                          features['shape_y'],
-                                                                                                          features['height'],
-                                                                                                          features['angle'],
-                                                                                                          features['position']))
-                self.server.register((features['shape_x'],
-                                      features['shape_y'],
-                                      features['height'],
-                                      features['angle'],
-                                      features['position'],
-                                      client_imagename))
-                response_body = self.make_message_response_body(
-                    'Upload success.')
+        #         # Calculates the receipt features and stores them into the DB.
+        #         features = self.extract_features(client_receiptdata)
+        #         logger.info('Sender receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % (features['shape_x'],
+        #                                                                                                   features['shape_y'],
+        #                                                                                                   features['height'],
+        #                                                                                                   features['angle'],
+        #                                                                                                   features['position']))
+        #         self.server.register((features['shape_x'],
+        #                               features['shape_y'],
+        #                               features['height'],
+        #                               features['angle'],
+        #                               features['position'],
+        #                               client_imagename))
+        #         response_body = self.make_message_response_body(
+        #             'Upload success.')
 
-        #----------#
-        # Receiver #
-        #----------#
-        elif client_type == 'receiver':
-            if client_receiptdata == 'undefined':
-                response_body = self.make_message_response_body(
-                    '[ERROR] Receipt is not attached.')
-            else:
-                # Calculates the receipt features.
-                features = self.extract_features(client_receiptdata)
-                logger.info('Receiver receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % (features['shape_x'],
-                                                                                                            features['shape_y'],
-                                                                                                            features['height'],
-                                                                                                            features['angle'],
-                                                                                                            features['position']))
+        # #----------#
+        # # Receiver #
+        # #----------#
+        # elif client_type == 'receiver':
+        #     if client_receiptdata == 'undefined':
+        #         response_body = self.make_message_response_body(
+        #             '[ERROR] Receipt is not attached.')
+        #     else:
+        #         # Calculates the receipt features.
+        #         features = self.extract_features(client_receiptdata)
+        #         logger.info('Receiver receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % (features['shape_x'],
+        #                                                                                                     features['shape_y'],
+        #                                                                                                     features['height'],
+        #                                                                                                     features['angle'],
+        #                                                                                                     features['position']))
 
-                # Gets the matched receipt ID.
-                candidates = self.server.get_all_features()
-                matched_id = self.server.matcher.match(
-                    features, candidates, use_fp=True)
+        #         # Gets the matched receipt ID.
+        #         candidates = self.server.get_all_features()
+        #         matched_id = self.server.matcher.match(
+        #             features, candidates, use_fp=True)
 
-                # Makes the response that contains the matched image name.
-                matched_image_name = self.server.get_image_path(matched_id)
-                matched_features = self.server.get_features_by_id(matched_id)
-                logger.info('Matched image name: %s' % matched_image_name)
-                logger.info(
-                    'Matched receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % matched_features)
-                imagepath = './client_data/images/' + matched_image_name
-                response = {'imagepath': imagepath,
-                            'imagename': matched_image_name}
-                response_body = json.dumps(response)
-                print('Matched Image Name: %s' % matched_image_name)
+        #         # Makes the response that contains the matched image name.
+        #         matched_image_name = self.server.get_image_path(matched_id)
+        #         matched_features = self.server.get_features_by_id(matched_id)
+        #         logger.info('Matched image name: %s' % matched_image_name)
+        #         logger.info(
+        #             'Matched receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % matched_features)
+        #         imagepath = './client_data/files/' + matched_image_name
+        #         response = {'imagepath': imagepath,
+        #                     'imagename': matched_image_name}
+        #         response_body = json.dumps(response)
+        #         print('Matched Image Name: %s' % matched_image_name)
 
         #--------------#
         # Invalid role #
@@ -166,14 +322,16 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         #-------------------------#
         self.send_response(200)
         self.send_header('Content-type', 'application/json; charset=utf-8')
-        self.send_header('Content-length', len(response_body))
+        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
-        self.wfile.write(response_body.encode('utf-8'))
+        self.wfile.write(json.dumps(response_body).encode('utf-8'))
+       
+        print('[info] Send data to client------\n', response_body)
 
-    def save_content_image(self, image_name, image_data):
-        outfile_path = './client_data/images/' + image_name
+    def save_content_file(self, file_name, file_data):
+        outfile_path = './client_data/files/' + file_name
         self.server.image_util.output_binaryfiledata_to_file(
-            image_data, outfile_path)
+            file_data, outfile_path)
 
     def extract_features(self, receipt_data):
         # レシート画像をバイナリデータからnumpy配列(BGR)に変換
@@ -181,11 +339,11 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
             receipt_data)
 
         # 特徴量の抽出
-        self.ipm = ipm.ImageProcessingManager(img_numpy_bgr, debug=True)
+        self.ipm = ipm.ImageProcessingManager(img_numpy_bgr, debug=False)
         features = self.ipm.extract_features(img_numpy_bgr)
 
         return features
 
     def make_message_response_body(self, msg):
         response = {'message': msg}
-        return json.dumps(response)
+        return response

@@ -15,6 +15,7 @@ import './ChatTop.css';
 import { receiptSharp, image } from 'ionicons/icons';
 
 import axios, { AxiosResponse } from 'axios';
+import { generateFormData } from '../generateFormData';
 
 const ChatTop: React.FC<RouteComponentProps> = (props) => {
   const url: string = "localhost:56060";
@@ -28,13 +29,15 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
 
   const handleClickCreateCRoom = (url: string) => {
     console.log('[API] create_chat_room')
-    const formData = new FormData();
-    formData.append('cmd', 'create_chat_room');
-    formData.append('image_id', '1');
+
+    const formData = generateFormData(
+      'cmd', 'create_chat_room',
+      'image_id', localStorage.getItem('image_id')
+    );
 
     // Send data using axios
-    axios.post(url, formData).then((response) => {
-      console.log(response);
+    axios.post('http://localhost:56060', formData).then((response) => {
+      localStorage.chat_room_id = response.data.data.chat_room_id;
     })
     .catch((error) => {
       console.log(error);
@@ -43,6 +46,16 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
   }
 
   const handleClickEnterRoom = () => {
+    console.log('[API] enter_chat_room');
+
+    const formData = generateFormData(
+      'cmd', 'chat_room_id',
+      'image_id', localStorage.getItem('image_id')
+    );
+
+    axios.post('http://localhost:56060', formData).then((response) => {
+      localStorage.chat_room_id = response.data.data.chat_room_id;
+    })
     props.history.push('/chatRoom');
   }
 
