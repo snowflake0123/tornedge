@@ -9,6 +9,8 @@ import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom'
 import './Home.css';
 import { image, receiptSharp } from 'ionicons/icons';
+import useLocalStorage from './../hooks/useLocalStorage'
+import { generateFormData } from './../generateFormData'
 
 const Home: React.FC<RouteComponentProps> = (props) => {
   const inputPhotoRef = React.useRef<HTMLInputElement>(null);
@@ -18,16 +20,23 @@ const Home: React.FC<RouteComponentProps> = (props) => {
     }
   }
 
-  const [photoData, setPhotoData] = useState<File | null>(null);
-  const [photoName, setPhotoName] = useState("No Photo chosen");
+  const [ImageID, setImageID] = useLocalStorage<String | null>('image_id', null);
+  const [photoName, setPhotoName] = useState("No photo chosen");
   const handleChangePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files;
-    if (file !== null && file[0] !== null) {
-      console.log(file[0])
-      const fName = file[0].name;
-      setPhotoData(file[0]);
-      setPhotoName(fName);
+    let fName = "No photo chosen";
+    if (file !== null && file[0] !== (null || undefined)) {
+      fName = file[0].name;
+      // TODO:
+      // Client: FormDataを作り，サーバへPOSTリクエストを送る
+      //// const formData = generateFormData(1,"hello",3,"hogehoge");
+      // Server: 紙片画像から特徴量抽出してDBに登録する
+      // Client: サーバから image_id を受け取って LocalStorage に保存する
+      //// setImageID(image_id)
+      props.history.push('/Functions');
     }
+    console.log(fName);
+    setPhotoName(fName);
   }
 
   return (
@@ -39,8 +48,7 @@ const Home: React.FC<RouteComponentProps> = (props) => {
             <IonLabel className="large-text">Tornedge</IonLabel>
           </div>
           <IonIcon icon={receiptSharp} className="huge-icon ion-margin"/>
-          <IonButton size="large" strong={true} onClick={() => {props.history.push('/Functions')}}>
-          {/*<IonButton size="large" strong={true} onClick={handleClickPhoto}>*/}
+          <IonButton size="large" strong={true} onClick={handleClickPhoto}>
             <IonIcon icon={image} className="ion-margin-end" />Choose Photo
             <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" onChange={handleChangePhoto}/>
           </IonButton>
