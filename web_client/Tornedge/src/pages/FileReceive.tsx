@@ -20,16 +20,12 @@ import {
   IonTitle,
   IonToolbar
 } from '@ionic/react';
-import React from 'react';
+import React, { useState } from 'react';
 import './FileReceive.css';
-import { images } from 'ionicons/icons';
-import { useForm } from 'react-hook-form';
+import { document } from 'ionicons/icons';
 import axios from 'axios';
-
-type Inputs = {
-  type: string;
-  receipt: FileList;
-};
+import useLocalStorage from './../hooks/useLocalStorage'
+import { generateFormData } from './../generateFormData';
 
 const ReceivedFile: React.FC = () => {
   return (
@@ -38,29 +34,31 @@ const ReceivedFile: React.FC = () => {
         <IonLabel>Item</IonLabel>
       </IonItem>
       <IonItemOptions side="end">
-        <IonItemOption color="danger" onClick={() => {}}>Delete</IonItemOption>
+        <IonItemOption color="danger" onClick={() => { }}>Delete</IonItemOption>
       </IonItemOptions>
     </IonItemSliding>
   )
 }
 
 const FileReceive: React.FC = () => {
-  const { register, setValue, handleSubmit } = useForm<Inputs>();
+  const path = require('path');
+  const [fileExists, setFileExists] = useState<boolean>(false);
+  const [filePath, setFilePath] = useState<string>("")
+  const [fileName, setFileName] = useState<string>("")
 
-  const onSubmit = (data: Inputs) => {
-    const formData = new FormData();
-    formData.set('type', data.type);
-    formData.set('receipt', data.receipt[0]);
-    formData.set('image', '');
-
-    axios.post("http://localhost:56060/", formData).then(response => {
-      console.log('body:', response.data);
-    });
+  const handleClickReceive = (event: React.MouseEvent<HTMLIonButtonElement>) => {
+    const imageID = localStorage.getItem("image_id")
+    const formData = generateFormData("cmd", "download_file",
+                                      "image_id", imageID);
+    // TODO: サーバに formData を POST する
+    // axios.post("http://localhost:56060", formData).then(response => {
+    //   console.log('body:', response.data);
+    //   const fPath = "responceのfile_path";
+    //   setFilePath(fPath);
+    //   setFileName(path.basename(fPath));
+    //   setFileExists(true);
+    // });
   };
-
-  const setTypeReceiver = () => {
-    setValue("type", "receiver");
-  }
 
   return (
     <IonPage>
@@ -73,46 +71,20 @@ const FileReceive: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <input name="type" className="display-none" type="text" ref={register} />
-          {/*<IonCard>
+        <div className="centered-card">
+          <IonCard>
             <IonCardHeader>
-              <IonCardTitle>A Piece of Paper</IonCardTitle>
+              <IonCardTitle>Received File</IonCardTitle>
             </IonCardHeader>
             <IonCardContent>
-              <label className="choose-button" onClick={setTypeReceiver}>
-                <IonIcon icon={images} className="ion-margin-end" />Choose Photo
-                <input name="receipt" className="display-none" type="file" ref={register({required: true})} accept="image/*" />
-              </label>
+              <div style={{ display: fileExists ? 'none' : '' }}>No file received</div>
+              <a style={{ display: fileExists ? '' : 'none' }} href={filePath}>{fileName}</a>
             </IonCardContent>
-          </IonCard>*/}
-          <IonList>
-            <IonListHeader>
-              <IonLabel>Received Files</IonLabel>
-            </IonListHeader>
-            <IonItemSliding>
-              <IonItem href="https://www.google.com">
-                <IonLabel>Item</IonLabel>
-              </IonItem>
-              <IonItemOptions side="end">
-                <IonItemOption color="danger" onClick={() => {}}>Delete</IonItemOption>
-              </IonItemOptions>
-            </IonItemSliding>
-            <IonItemSliding>
-              <IonItem href="https://www.google.com">
-                <IonLabel>Item</IonLabel>
-              </IonItem>
-              <IonItemOptions side="end">
-                <IonItemOption color="danger" onClick={() => {}}>Danger</IonItemOption>
-              </IonItemOptions>
-            </IonItemSliding>
-          </IonList>
-          <div className="footer-button">
-            <IonButton expand="full" size="large" className="ion-align-self-end" type="submit">
-              Receive
-            </IonButton>
-          </div>
-        </form>
+          </IonCard>
+        </div>
+        <div className="footer-button">
+          <IonButton expand="full" size="large" className="ion-align-self-end" onClick={handleClickReceive} >Receive</IonButton>
+        </div>
       </IonContent>
     </IonPage>
   );
