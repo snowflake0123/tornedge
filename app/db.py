@@ -32,12 +32,11 @@ class DBHandler():
         fp_str   = ",".join(map(str, fp))
         try:
             curs.execute('''
-                INSERT INTO paper (fs_x, fs_y, fh, fa, fp, file_path)
+                INSERT INTO paper (fs_x, fs_y, fh, fa, fp, image_path)
                 VALUES ('%s', '%s', '%f', '%f', '%s', '%s')
-            ''' % (fs_x_str, fs_y_str, fh, fa, fp_str, file_path))
+            ''' % (fs_x_str, fs_y_str, fh, fa, fp_str, image_path))
             conn.commit()
-        except sqlite3.OperationalError: 
-            self.show_error_message()
+        except sqlite3.OperationalError: self.show_error_message()
         conn.close()
 
 
