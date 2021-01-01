@@ -10,7 +10,7 @@ export const generateFormData = (...props: any[]) => {
 
 	if (data.length % 2 === 0) {
 		for (let i=0; i < data.length; i+=2) {
-			formData.append(data[i], data[i+1]);
+			formData.set(data[i], data[i+1]);
 			// console.log(`${data[i]}: ${data[i+1]}`);
 		}
 	}
