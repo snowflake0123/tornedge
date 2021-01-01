@@ -25,6 +25,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { RouteComponentProps } from 'react-router';
 import axios from 'axios';
 import { convertCompilerOptionsFromJson, setConstantValue } from 'typescript';
+import { generateFormData } from '../generateFormData';
 
 function doRefresh(event: CustomEvent<RefresherEventDetail>) {
   console.log('Begin async operation');
@@ -72,6 +73,7 @@ const testMessages: Message[] = [
 ]
 
 const MyMsg: React.FC<Message> = (props) => {
+
   return (
     <IonItem lines="none">
       <IonLabel className="ion-margin-start me-speech-bubble ion-padding ion-text-wrap">
@@ -108,6 +110,7 @@ const MsgList: React.FC<Messages> = (props) => {
 
 
 const ChatRoom: React.FC<RouteComponentProps> = (props) => {
+  const [messages, setMessages] = useState(testMessages)
   const [message, setMessage] = useState('')
   
   const handleClickBack = () => {
@@ -115,11 +118,33 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     // Function
     //   Step1: Send ID and command
     //   Step2: Change ID's chatflag data to false
+    const formData = generateFormData(
+      'cmd', 'exit_chat',
+      'image_id', '1'
+    )
+
+    axios.post('http://localhost:56060', formData).then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+
     props.history.goBack(); 
   }
 
   const handleClickSend = () => {
     console.log('[API] send_chat');
+
+    const formData = generateFormData(
+      'cmd', 'send_chat',
+      'message', message,
+      'chat_room_id', localStorage.getItem('chat_room_id')
+    );
+
+    axios.post('http://localhost:56060', formData).then((respose) => {
+      setMessages(respose.data.data.chat_log);
+    })
     setMessage('');
   }
 
@@ -134,8 +159,8 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     formData.append('cmd', 'enter_chat_room');
     formData.append('image_id', '1');
 
-    axios.post('localhost:', formData).then((response) => {
-      console.log(response);
+    axios.post('http://localhost:56060', formData).then((response) => {
+      console.log(response.data);
     })
     .catch((error) => {
       console.log(error);
@@ -169,7 +194,7 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
             refreshingText="Refreshing...">
           </IonRefresherContent>
         </IonRefresher>
-        <MsgList messages={testMessages} />
+        <MsgList messages={messages} />
       </IonContent>
 
       {/* Input */}

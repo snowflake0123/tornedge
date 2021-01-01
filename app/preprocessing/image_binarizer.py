@@ -11,7 +11,7 @@ import sys
 # Related third party imports.
 import cv2
 import numpy as np
-from pymatting import alpha
+# from pymatting import alpha
 from tensorflow.keras.preprocessing.image import img_to_array
 
 # Local application/library specific imports.
@@ -147,20 +147,20 @@ class ImageBinarizer():
         return trimap
 
 
-    def matting(self, src_image, src_bin_image, trimap_param=20):
-        image     = cv2.cvtColor(src_image.copy(), cv2.COLOR_BGR2RGB)
-        bin_image = cv2.cvtColor(src_bin_image.copy(), cv2.COLOR_BGR2GRAY)
-        trimap    = self.generateTrimap(bin_image, param=trimap_param)
+    # def matting(self, src_image, src_bin_image, trimap_param=20):
+    #     image     = cv2.cvtColor(src_image.copy(), cv2.COLOR_BGR2RGB)
+    #     bin_image = cv2.cvtColor(src_bin_image.copy(), cv2.COLOR_BGR2GRAY)
+    #     trimap    = self.generateTrimap(bin_image, param=trimap_param)
 
-        image  = np.array(image) / 255.0
-        trimap = np.array(trimap) / 255.0
+    #     image  = np.array(image) / 255.0
+    #     trimap = np.array(trimap) / 255.0
 
-        matted = np.clip(alpha.estimate_alpha_knn(image, trimap) * 255, 0, 255).astype('uint8')
+    #     matted = np.clip(alpha.estimate_alpha_knn(image, trimap) * 255, 0, 255).astype('uint8')
 
-        if self.DEBUG_FLAG:
-            cv2.imwrite(str(self.ipm.IMG_SAVE_CNT).zfill(2) + '_matted.jpg', matted)
-            self.ipm.IMG_SAVE_CNT += 1
+    #     if self.DEBUG_FLAG:
+    #         cv2.imwrite(str(self.ipm.IMG_SAVE_CNT).zfill(2) + '_matted.jpg', matted)
+    #         self.ipm.IMG_SAVE_CNT += 1
 
-        matted = cv2.cvtColor(matted, cv2.COLOR_GRAY2BGR)
+    #     matted = cv2.cvtColor(matted, cv2.COLOR_GRAY2BGR)
 
-        return matted
+    #     return matted
