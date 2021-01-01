@@ -20,7 +20,7 @@ import {
 import React, { useState } from 'react';
 import './ChatRoom.css';
 import { RefresherEventDetail } from '@ionic/core';
-import { chevronDownCircleOutline } from 'ionicons/icons';
+import { chevronDownCircleOutline, reload } from 'ionicons/icons';
 import { IonReactRouter } from '@ionic/react-router';
 import { RouteComponentProps } from 'react-router';
 import axios from 'axios';
@@ -111,6 +111,7 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
   const [message, setMessage] = useState('')
   
   const handleClickBack = () => {
+    console.log('[API] exit_chat');
     // Function
     //   Step1: Send ID and command
     //   Step2: Change ID's chatflag data to false
@@ -118,12 +119,12 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
   }
 
   const handleClickSend = () => {
-    console.log(message);
+    console.log('[API] send_chat');
     setMessage('');
   }
 
   const handleClickUpdate = () => {
-
+    console.log('[API] update_chat');
   }
 
   useIonViewWillEnter(() => {
@@ -151,6 +152,10 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
             <IonButton fill="clear" size="small" onClick={() => handleClickBack()}>Back</IonButton>
           </IonButtons>
           <IonTitle>Chat -Chat Room-</IonTitle>
+          {/* Reload Button */}
+          <IonButton slot="end" color="midium" size="small" onClick={() => handleClickUpdate()}>
+            <IonIcon icon={reload}></IonIcon>
+          </IonButton>
         </IonToolbar>
       </IonHeader>
 
