@@ -21,7 +21,7 @@ const Home: React.FC<RouteComponentProps> = (props) => {
     }
   }
 
-  const [ImageID, setImageID] = useLocalStorage<String | null>('image_id', null);
+  const [imageID, setImageID] = useLocalStorage<String | null>('image_id', null);
   const [photoName, setPhotoName] = useState("No photo chosen");
   const handleChangePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log('[API] upload_image');
@@ -40,9 +40,12 @@ const Home: React.FC<RouteComponentProps> = (props) => {
         'image', file[0]
       )
       axios.post('http://localhost:56060', formData).then((response) => {
-        localStorage.image_id = response.data.data.image_id;
-        console.log('localstorage', localStorage.getItem('image_id'));
+        // localStorage.image_id = response.data.data.image_id;
+        // console.log('localstorage', localStorage.getItem('image_id'));
+        setImageID(response.data.data.image_id);
+        console.log('localstorage', imageID);
         localStorage.clear();
+        // props.history.push('/Functions');
       })
       .catch((error) => {
         console.log(error);

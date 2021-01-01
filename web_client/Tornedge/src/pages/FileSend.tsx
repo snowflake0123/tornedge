@@ -29,11 +29,15 @@ const FileSend: React.FC = () => {
   }
 
   const handleClickSend = (event: React.MouseEvent<HTMLIonButtonElement>) => {
-    const formData = generateFormData("cmd", "upload_image",
-                                      "image", fileData);
+    const imageID = localStorage.getItem("image_id")
+    const formData = generateFormData("cmd", "upload_file",
+                                      "image_id", imageID,
+                                      "file", fileData);
     // TODO: サーバに formData を POST する
-    // axios.post("http://localhost:56060", formData).then(response => {
+    // axios.post("http://localhost:56060", formData).then((response) => {
     //   console.log('body:', response.data);
+    // }).catch((error) => {
+    //   console.log(error);
     // });
   };
 

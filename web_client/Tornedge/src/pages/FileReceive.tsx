@@ -9,13 +9,6 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
-  IonItem,
-  IonItemOption,
-  IonItemOptions,
-  IonItemSliding,
-  IonLabel,
-  IonList,
-  IonListHeader,
   IonPage,
   IonTitle,
   IonToolbar
@@ -24,21 +17,7 @@ import React, { useState } from 'react';
 import './FileReceive.css';
 import { document } from 'ionicons/icons';
 import axios from 'axios';
-import useLocalStorage from './../hooks/useLocalStorage'
 import { generateFormData } from './../generateFormData';
-
-const ReceivedFile: React.FC = () => {
-  return (
-    <IonItemSliding>
-      <IonItem href="https://www.google.com">
-        <IonLabel>Item</IonLabel>
-      </IonItem>
-      <IonItemOptions side="end">
-        <IonItemOption color="danger" onClick={() => { }}>Delete</IonItemOption>
-      </IonItemOptions>
-    </IonItemSliding>
-  )
-}
 
 const FileReceive: React.FC = () => {
   const path = require('path');
@@ -51,13 +30,21 @@ const FileReceive: React.FC = () => {
     const formData = generateFormData("cmd", "download_file",
                                       "image_id", imageID);
     // TODO: サーバに formData を POST する
-    // axios.post("http://localhost:56060", formData).then(response => {
+    // axios.post("http://localhost:56060", formData).then((response) => {
     //   console.log('body:', response.data);
     //   const fPath = "responceのfile_path";
     //   setFilePath(fPath);
     //   setFileName(path.basename(fPath));
     //   setFileExists(true);
+    // }).catch((error) => {
+    //   console.log(error);
     // });
+
+    // ----- For debug only. -----
+    // const fPath = "./../../../../app/simulator/default.jpg";
+    // setFilePath(fPath);
+    // setFileName(path.basename(fPath));
+    // setFileExists(true);
   };
 
   return (
@@ -78,7 +65,10 @@ const FileReceive: React.FC = () => {
             </IonCardHeader>
             <IonCardContent>
               <div style={{ display: fileExists ? 'none' : '' }}>No file received</div>
-              <a style={{ display: fileExists ? '' : 'none' }} href={filePath}>{fileName}</a>
+              <div style={{ display: fileExists ? '' : 'none' }}>
+                <IonIcon icon={document} />
+                <a href={filePath}>{fileName}</a>
+              </div>
             </IonCardContent>
           </IonCard>
         </div>
