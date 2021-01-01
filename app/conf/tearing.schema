@@ -1,5 +1,5 @@
 CREATE TABLE paper(
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTO INCREMENT,
     fs_x TEXT,
     fs_y TEXT,
     fh FLOAT,

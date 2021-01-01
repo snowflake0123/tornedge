@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-import morphology
-import numpy as np
-import cv2
 import math
+import cv2
+import numpy as np
+import pathlib
+import sys
+current_dir = pathlib.Path(__file__).resolve().parent
+sys.path.append(str(current_dir))
+import morphology
+
 __author__ = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2020 Miyata Lab.'
 
