@@ -131,11 +131,11 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     )
     axios.post('http://localhost:56060', formData).then((response) => {
       // 2: clear chat log data in state
-      const res: string = response.data.data.result
-      if(res == 'success') {
+      const res_data = response.data['data']
+      if(res_data['result'] == 'success') {
         setMessages([]);
       } else {
-        setErrorMessage(response.data.data.message);
+        setErrorMessage(res_data['message']);
         setShowToast(true);
       }
     })
@@ -163,10 +163,11 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     );
     axios.post('http://localhost:56060', formData).then((response) => {
       // 2: update chat log value in state
-      if(response.data.data.result === 'success') {
-        setMessages(response.data.data.chat_log);
+      const res_data = response.data['data'];
+      if(res_data['result'] === 'success') {
+        setMessages(res_data['chat_log']);
       } else {
-        setErrorMessage(response.data.data.message);
+        setErrorMessage(res_data['message']);
         setShowToast(true);
       }
     })
