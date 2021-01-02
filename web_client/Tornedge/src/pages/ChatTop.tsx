@@ -2,6 +2,10 @@ import {
   IonBackButton,
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
   IonContent,
   IonHeader,
   IonIcon,
@@ -12,10 +16,11 @@ import {
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom'
 import './ChatTop.css';
-import { receiptSharp, image } from 'ionicons/icons';
+import { addCircle, enter } from 'ionicons/icons';
 
 import axios, { AxiosResponse } from 'axios';
 import { generateFormData } from '../generateFormData';
+import { Cipher } from 'crypto';
 
 const ChatTop: React.FC<RouteComponentProps> = (props) => {
   const url: string = "localhost:56060";
@@ -74,24 +79,27 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
       {/* Content */}
       <IonContent>
         <div className="centered">
-          {/* Icon */}
-          <IonIcon icon={receiptSharp} className="huge-icon ion-margin-bottom"/>
-
+          <div className="functions">
           {/* Create Room Button */}
-          <IonButton size="large" strong={true} onClick={() => {
-            props.history.push('/chatRoom')
-          }}>
-            <IonIcon icon={image} className="ion-margin-end" />Create Room
-            <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" />
-          </IonButton>
+          <IonCard className="ion-text-center" onClick={() => props.history.push('/chatRoom')}>
+            <IonCardHeader>
+              <IonCardTitle>Create Room</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <IonIcon icon={addCircle} className="larger-icon" />
+            </IonCardContent>
+          </IonCard>
 
           {/* Enter Room Button */}
-          <IonButton size="large" strong={true} onClick={() => {
-            props.history.push('/chatRoom')
-          }}>
-            <IonIcon icon={image} className="ion-margin-end" />Enter Room
-            <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" />
-          </IonButton>
+          <IonCard className="ion-text-center" onClick={() => props.history.push('/chatRoom')}>
+            <IonCardHeader>
+              <IonCardTitle>Enter Room</IonCardTitle>
+            </IonCardHeader>
+            <IonCardContent>
+              <IonIcon icon={enter} className="larger-icon" />
+            </IonCardContent>
+          </IonCard>
+          </div>
         </div>
       </IonContent>
     </IonPage>
