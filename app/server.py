@@ -60,6 +60,11 @@ class TearingServer(scts.ThreadingMixIn, scts.TCPServer):
     def get_chat_room_id_by_image_id(self, image_id):
         return self.env.get_chat_room_id_by_image_id(image_id)
 
+    def register_chat_room_id(self, image_id):
+        return self.env.register_chat_room_id(image_id)
+
+    def create_chat_room_db_table(self, chat_room_id):
+        return self.env.create_chat_room_db_table
 
 class TearingHandler(hs.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -106,7 +111,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     'data': {
                         'result': 'failure',
                         'message': 'Failed to upload image.',
-                        'image_id': '1'
+                        'image_id': ''
                     }
                 }
         #-------------#
@@ -114,7 +119,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         #-------------#
         elif cmd == 'upload_file':
             try:
-                image_id = int(form['image_id'])
+                image_id = int(form['image_id'].value)
                 file_name = form['file'].filename
                 file_data = form['file'].value
                 self.save_content_file(file_name, file_data)
@@ -169,26 +174,30 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 }
 
         #------------------#
-        # Create_chat_room #
+        # create_chat_room #
         #------------------#
         elif cmd == 'create_chat_room':
             try:
-                image_id = int(form['image_id'])
+                image_id = int(form['image_id'].value.replace('\"', ''))
+
                 # TODO:
-                #  image_idの行のchat_room_idを決定，代入
-                #  chat_room_idを元にDBのテーブル or ファイルを作成
+                #  chat_room_idを作成し，DBのimage_idの行に値を登録
+                chat_room_id = self.server.register_chat_room_id(image_id)
+                #  chat_room_idを元にDBのテーブルを作成
+                self.server.create_chat_room_db_table(chat_room_id)
                 #  chat_room_idを返す
                 response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'success',
                         'message': 'Successfully to create the chat room.',
-                        'chat_room_id': '1'
+                        'chat_room_id': chat_room_id
                     }
                 }
-            except:
+            except KeyError as e:
+                print(e.args[1])
                 logger.error('Failed to create the chat room.')
-                reponse_body = {
+                response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'failure',
@@ -202,7 +211,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         #-----------------#
         elif cmd == 'enter_chat_room':
             try:
-                image_id = int(form['image_id'].value)
+                image_id = form['image_id'].value
                 # TODO:
                 #  image_idの紙片とchat_room_idに値がある紙片でマッチングさせる
                 #  マッチング相手のchat_room_idを返す 
@@ -224,6 +233,34 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'chat_room_id': '1'
                     }
                 }
+        
+        #-------------#
+        # update_chat #   
+        #-------------#
+        elif cmd == 'update_chat':
+            try:
+                chat_room_id = form['chat_room_id'].value
+                # TODO:
+                #   チャットルームIDのDBを参照して最新のチャットログを取得，配列に変換
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to update the chat log.',
+                        'chat_log': []
+                    }
+                }
+            except:
+                logger.error('Failed to update the chat log.')
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to update the chat log.',
+                        'chat_log': []
+                    }
+                }
+
 
         #----------------#
         # Exit_chat_room #

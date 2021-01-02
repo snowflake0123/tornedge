@@ -67,6 +67,11 @@ class Env:
     def get_chat_room_id_by_image_id(self, image_id):
         return self.db_handler.get_chat_room_id_by_image_id(image_id)
 
+    def register_chat_room_id(self, image_id):
+        return self.db_handler.register_chat_room_id(image_id)
+
+    def create_chat_room_db_table(self, chat_room_id):
+        return self.db_handler.create_chat_room_db_table(chat_room_id)
 
 #----------------------------#
 # Starts the server process. #

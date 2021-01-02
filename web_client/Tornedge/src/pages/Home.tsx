@@ -42,9 +42,9 @@ const Home: React.FC<RouteComponentProps> = (props) => {
       axios.post('http://localhost:56060', formData).then((response) => {
         // localStorage.image_id = response.data.data.image_id;
         // console.log('localstorage', localStorage.getItem('image_id'));
-        setImageID(response.data.data.image_id);
+        setImageID(response.data['data']['image_id']);
+        console.log('res', response.data['data']['image_id']);
         console.log('localstorage', imageID);
-        localStorage.clear();
         // props.history.push('/Functions');
       })
       .catch((error) => {
