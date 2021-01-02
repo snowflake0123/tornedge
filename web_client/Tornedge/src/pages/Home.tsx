@@ -43,7 +43,6 @@ const Home: React.FC<RouteComponentProps> = (props) => {
         // localStorage.image_id = response.data.data.image_id;
         // console.log('localstorage', localStorage.getItem('image_id'));
         setImageID(response.data['data']['image_id']);
-        console.log('res', response.data['data']['image_id']);
         console.log('localstorage', imageID);
         // props.history.push('/Functions');
       })
