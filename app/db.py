@@ -90,3 +90,42 @@ class DBHandler():
         except sqlite3.OperationalError: self.show_error_message()
         conn.close()
         return res
+
+
+    def register_chat_room_id(self, image_id):
+        # Create random ID using datatime and uuid4
+        from datetime import datetime
+        from uuid import uuid4
+        chat_room_id = datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
+        # Register chat_room_id to database
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        res = ''
+        try:
+            curs.execute('''
+                UPDATE paper
+                SET chat_room_id='%s' 
+                WHERE image_id=%d
+            ''' % (chat_room_id, int(image_id)))
+            conn.commit()
+            res = chat_room_id
+        except sqlite3.OperationalError as e:
+            print(e)
+            self.show_error_message()
+        
+        conn.close()
+        return res
+
+    
+    def create_chat_room_db_table(self, chat_room_id):
+        conn = sqlite3.connect(self.db_name)
+        cur  = conn.cursor()
+        table_name = chat_room_id
+        try:
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS %s(image_id INTEGER, text TEXT);
+            ''')
+            conn.commit()
+        except sqlite3.OperationalError as e:
+            print(e)
+            self.show_error_message()

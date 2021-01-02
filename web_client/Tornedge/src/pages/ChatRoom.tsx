@@ -38,7 +38,7 @@ function doRefresh(event: CustomEvent<RefresherEventDetail>) {
 }
 
 type Message = {
-  who: string
+  image_id: string
   text: string
 }
 
@@ -48,27 +48,27 @@ type Messages = {
 
 const testMessages: Message[] = [
   {
-    who: "me",
+    image_id: "1",
     text: "Hi, we met earlier. I'm Bob."
   },
   {
-    who: "partner",
+    image_id: "2",
     text: "Hey Bob. I'm Kenny."
   },
   {
-    who: "me",
+    image_id: "1",
     text: "I'd like to continue what we were talking about earlier, if that's okay."
   },
   {
-    who: "partner",
+    image_id: "2",
     text: "Of course."
   },
   {
-    who: "partner",
+    image_id: "2",
     text: "Oh, I'm sorry. I've got some business to attend to later, so can I have ten minutes with you?"
   },
   {
-    who: "me",
+    image_id: "1",
     text: "Okay! Then let's talk briefly."
   },
 ]
@@ -99,10 +99,10 @@ const MsgList: React.FC<Messages> = (props) => {
   return (
     <IonList className="ion-padding-top">
       { props.messages.map((message: Message, index:number) => {
-        if (message.who === "me") {
-          return (<MyMsg key={index} who={message.who} text={message.text}/>)
+        if (message.image_id === localStorage.getItem('image_id')) {
+          return (<MyMsg key={index} image_id={message.image_id} text={message.text}/>)
         } else {
-          return (<PartnerMsg key={index} who={message.who} text={message.text}/>)
+          return (<PartnerMsg key={index} image_id={message.image_id} text={message.text}/>)
         }
       })}
     </IonList>
@@ -186,12 +186,13 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       'cmd', 'update_chat',
       'chat_room_id', localStorage.getItem('chat_room_id')
     )
-    axios.post('http:/localhost:56060', formData).then((response) => {
+    axios.post('http://localhost:56060', formData).then((response) => {
       // 2: update chat log value in state
-      if(response.data.data.reslut == 'success') {
-        setMessages(response.data.data.chat_log);
+      const res_data = response.data['data']
+      if(res_data['result'] == 'success') {
+        setMessages(res_data['chat_log']);
       } else {
-        setErrorMessage(response.data.data.message);
+        setErrorMessage(res_data['message']);
         setShowToast(true);
       }
     })

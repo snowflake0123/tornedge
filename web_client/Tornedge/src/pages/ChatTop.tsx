@@ -43,22 +43,28 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     console.log('[API] create_chat_room');
 
     // 1: Send request
-    const formData = generateFormData(
-      'cmd', 'create_chat_room',
-      'image_id', localStorage.getItem('image_id')
-    );
-    axios.post('http://localhost:56060', formData).then((response) => {
-      // 2: Save chat_room_id 
-      if(response.data.data.result === 'success') {
-        localStorage.chat_room_id = response.data.data.chat_room_id;
-      } else {
-        setErrorMessage(response.data.data.message);
-        setShowToast(true);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    if(localStorage.getItem('image_id') !== null) {
+      const formData = generateFormData(
+        'cmd', 'create_chat_room',
+        'image_id', localStorage.getItem('image_id')
+      );
+      axios.post('http://localhost:56060', formData).then((response) => {
+        // 2: Save chat_room_id 
+        const res_data = response.data;
+        console.log(response)
+        if(res_data['result'] === 'success') {
+          localStorage.chat_room_id = res_data['chat_room_id'];
+          console.log('chat_room_id', localStorage.getItem('chat_room_id'))
+        } else {
+          console.log('e')
+          setErrorMessage(res_data['message']);
+          setShowToast(true);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    }
     // 3: move ot ChatRoom page
     props.history.push('/chatRoom');
   }
@@ -77,10 +83,12 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     );
     axios.post('http://localhost:56060', formData).then((response) => {
       // 2: Save chat_room_id to localStorage
-      if(response.data.data.result === 'success') {
-        localStorage.chat_room_id = response.data.data.chat_room_id;
+      const res_data = response.data['data'];
+      if(res_data['result'] === 'success') {
+        localStorage.chat_room_id = res_data['chat_room_id'];
+        console.log('chat_room_id', localStorage.getItem('chat_room_id'))
       } else {
-        setErrorMessage(response.data.data.message);
+        setErrorMessage(res_data['message']);
         setShowToast(true);
       }
     })
@@ -104,7 +112,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
         <div className="centered">
           <div className="functions">
           {/* Create Room Button */}
-          <IonCard className="ion-text-center" onClick={() => props.history.push('/chatRoom')}>
+          <IonCard className="ion-text-center" onClick={() => handleClickCreateChatRoom()}>
             <IonCardHeader>
               <IonCardTitle>Create Room</IonCardTitle>
             </IonCardHeader>
@@ -114,7 +122,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
           </IonCard>
 
           {/* Enter Room Button */}
-          <IonCard className="ion-text-center" onClick={() => props.history.push('/chatRoom')}>
+          <IonCard className="ion-text-center" onClick={() => handleClickEnterChatRoom()}>
             <IonCardHeader>
               <IonCardTitle>Enter Room</IonCardTitle>
             </IonCardHeader>
