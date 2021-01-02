@@ -46,32 +46,7 @@ type Messages = {
   messages: Message[]
 }
 
-const testMessages: Message[] = [
-  {
-    image_id: "1",
-    text: "Hi, we met earlier. I'm Bob."
-  },
-  {
-    image_id: "2",
-    text: "Hey Bob. I'm Kenny."
-  },
-  {
-    image_id: "1",
-    text: "I'd like to continue what we were talking about earlier, if that's okay."
-  },
-  {
-    image_id: "2",
-    text: "Of course."
-  },
-  {
-    image_id: "2",
-    text: "Oh, I'm sorry. I've got some business to attend to later, so can I have ten minutes with you?"
-  },
-  {
-    image_id: "1",
-    text: "Okay! Then let's talk briefly."
-  },
-]
+const initMessages: Message[] = []
 
 const MyMsg: React.FC<Message> = (props) => {
 
@@ -111,38 +86,12 @@ const MsgList: React.FC<Messages> = (props) => {
 
 
 const ChatRoom: React.FC<RouteComponentProps> = (props) => {
-  const [messages, setMessages] = useState(testMessages)
-  const [message, setMessage] = useState('')
-  const [showToast, setShowToast] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')  
+  const [messages, setMessages] = useState(initMessages);
+  const [message, setMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');  
 
   const handleClickBack = () => {
-    console.log('[API] exit_chat');
-   /* Function
-    *   Step1: Send request
-    *   Step2: clear chat log data in state
-    *   Step3: back to ChatTop page
-    */   
-
-    // 1: send request
-    const formData = generateFormData(
-      'cmd', 'exit_chat',
-      'image_id', '1'
-    )
-    axios.post('http://localhost:56060', formData).then((response) => {
-      // 2: clear chat log data in state
-      const res_data = response.data['data']
-      if(res_data['result'] == 'success') {
-        setMessages([]);
-      } else {
-        setErrorMessage(res_data['message']);
-        setShowToast(true);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    })
-    // 3: back to ChatTop page
     props.history.goBack(); 
   }
 
@@ -156,20 +105,37 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     console.log('[API] send_chat');
     
     // 1: send request
+    const new_message = localStorage.getItem('image_id') + ', ' + message
+    console.log(new_message)
     const formData = generateFormData(
       'cmd', 'send_chat',
-      'message', message,
+      'message', new_message,
       'chat_room_id', localStorage.getItem('chat_room_id')
     );
     axios.post('http://localhost:56060', formData).then((response) => {
-      // 2: update chat log value in state
-      const res_data = response.data['data'];
-      if(res_data['result'] === 'success') {
-        setMessages(res_data['chat_log']);
+      // 2: update chatlog value in state
+      const res_data = response.data['data']
+      if(res_data['result'] == 'success') {
+        const chat_log:Array<string> = res_data['chat_log']
+        const new_log:Array<Message> = []
+        chat_log.map((value, index) => {
+          const line = value.split(',')
+          const obj:Message = {
+            'image_id': line[0],
+            'text': line[1]
+          }
+          new_log.push(obj);
+        })
+        setMessages(new_log);
       } else {
         setErrorMessage(res_data['message']);
         setShowToast(true);
       }
+    })
+    .catch((error) => {
+      setErrorMessage('Failed to send the chat message');
+      setShowToast(true);
+      console.log(error);
     })
     // 3: Reset value of input textarea
     setMessage('');
@@ -191,13 +157,25 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       // 2: update chat log value in state
       const res_data = response.data['data']
       if(res_data['result'] == 'success') {
-        setMessages(res_data['chat_log']);
+        const chat_log:Array<string> = res_data['chat_log']
+        const new_log:Array<Message> = []
+        chat_log.map((value, index) => {
+          const line = value.split(',')
+          const obj:Message = {
+            'image_id': line[0],
+            'text': line[1]
+          }
+          new_log.push(obj);
+        })
+        setMessages(new_log);
       } else {
         setErrorMessage(res_data['message']);
         setShowToast(true);
       }
     })
     .catch((error) => {
+      setErrorMessage('Failed to update the chat log');
+      setShowToast(true);
       console.log(error);
     })
   }
@@ -246,15 +224,17 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
         </IonInput>
       </IonItem>
       <div className="ion-padding">
-        <IonButton color="success" expand="block" onClick={() => handleClickSend()}>Send</IonButton>
+        <IonButton className="send-button" expand="block" onClick={() => handleClickSend()}>Send</IonButton>
       </div>
 
       {/* Toast */}
       <IonToast
         isOpen={showToast}
+        position="middle"
+        color="danger"
         onDidDismiss={() => setShowToast(false)}
         message={errorMessage}
-        duration={200}
+        duration={5000}
       />
 
     </IonPage>
