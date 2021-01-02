@@ -43,7 +43,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     console.log('[API] create_chat_room');
 
     // 1: Send request
-    if(localStorage.getItem('image_id') !== null) {
+    if(localStorage.getItem('chat_room_id') !== null) {
       const formData = generateFormData(
         'cmd', 'create_chat_room',
         'image_id', localStorage.getItem('image_id')
