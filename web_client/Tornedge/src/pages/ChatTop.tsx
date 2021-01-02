@@ -11,9 +11,10 @@ import {
   IonIcon,
   IonPage,
   IonTitle,
-  IonToolbar
+  IonToolbar,
+  IonToast
 } from '@ionic/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom'
 import './ChatTop.css';
 import { addCircle, enter } from 'ionicons/icons';
@@ -23,7 +24,8 @@ import { generateFormData } from '../generateFormData';
 import { Cipher } from 'crypto';
 
 const ChatTop: React.FC<RouteComponentProps> = (props) => {
-  const url: string = "localhost:56060";
+  const [showToast, setShowToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const inputPhotoRef = React.useRef<HTMLInputElement>(null);
   const handleClickPhoto = () => {
@@ -32,34 +34,55 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     }
   }
 
-  const handleClickCreateCRoom = (url: string) => {
-    console.log('[API] create_chat_room')
+  const handleClickCreateChatRoom = () => {
+   /* Functions
+    *   1: Send request
+    *   2: Save chat_room_id to localStrorage
+    *   3: move to ChatRoom page
+    */
+    console.log('[API] create_chat_room');
 
+    // 1: Send request
     const formData = generateFormData(
       'cmd', 'create_chat_room',
       'image_id', localStorage.getItem('image_id')
     );
-
-    // Send data using axios
     axios.post('http://localhost:56060', formData).then((response) => {
-      localStorage.chat_room_id = response.data.data.chat_room_id;
+      // 2: Save chat_room_id 
+      if(response.data.data.result === 'success') {
+        localStorage.chat_room_id = response.data.data.chat_room_id;
+      } else {
+        setErrorMessage(response.data.data.message);
+        setShowToast(true);
+      }
     })
     .catch((error) => {
       console.log(error);
     });
+    // 3: move ot ChatRoom page
     props.history.push('/chatRoom');
   }
 
-  const handleClickEnterRoom = () => {
+  const handleClickEnterChatRoom = () => {
+   /* Functions
+    *   1: Send request
+    *   2: Save chat_room_id to localStrorage
+    */
     console.log('[API] enter_chat_room');
 
+    // 1: Send request
     const formData = generateFormData(
       'cmd', 'chat_room_id',
       'image_id', localStorage.getItem('image_id')
     );
-
     axios.post('http://localhost:56060', formData).then((response) => {
-      localStorage.chat_room_id = response.data.data.chat_room_id;
+      // 2: Save chat_room_id to localStorage
+      if(response.data.data.result === 'success') {
+        localStorage.chat_room_id = response.data.data.chat_room_id;
+      } else {
+        setErrorMessage(response.data.data.message);
+        setShowToast(true);
+      }
     })
     props.history.push('/chatRoom');
   }
@@ -101,6 +124,13 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
           </IonCard>
           </div>
         </div>
+        {/* Toast */}
+        <IonToast
+          isOpen={showToast}
+          onDidDismiss={() => setShowToast(false)}
+          message={errorMessage}
+          duration={200}
+        />
       </IonContent>
     </IonPage>
   );
