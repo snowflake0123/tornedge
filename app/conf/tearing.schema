@@ -1,9 +1,11 @@
 CREATE TABLE paper(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    registered_date DATETIME,
     fs_x TEXT,
     fs_y TEXT,
     fh FLOAT,
     fa FLOAT,
     fp TEXT,
-    image_path TEXT
+    file_path TEXT,
+    chat_room_id TEXT
 );

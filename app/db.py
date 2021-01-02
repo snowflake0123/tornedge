@@ -24,22 +24,62 @@ class DBHandler():
         print('Use ./conf/init_db.sh .')
 
 
-    def register(self, fs_x, fs_y, fh, fa, fp, image_path):
+    #=================#
+    # Register Method #
+    #=================#
+    def register_and_get_image_id(self, registered_date, fs_x, fs_y, fh, fa, fp, file_path, chat_room_id):
         conn     = sqlite3.connect(self.db_name)
         curs     = conn.cursor()
+        res      = -1
         fs_x_str = ",".join(map(str, fs_x))
         fs_y_str = ",".join(map(str, fs_y))
         fp_str   = ",".join(map(str, fp))
         try:
             curs.execute('''
-                INSERT INTO paper (fs_x, fs_y, fh, fa, fp, image_path)
-                VALUES ('%s', '%s', '%f', '%f', '%s', '%s')
-            ''' % (fs_x_str, fs_y_str, fh, fa, fp_str, image_path))
+                INSERT INTO paper (registered_date, fs_x, fs_y, fh, fa, fp, file_path, chat_room_id)
+                VALUES ('%s', '%s', '%s', '%f', '%f', '%s', '%s', '%s')
+            ''' % (registered_date, fs_x_str, fs_y_str, fh, fa, fp_str, file_path, chat_room_id))
+            res = curs.lastrowid
+            conn.commit()
+        except sqlite3.OperationalError: self.show_error_message()
+        conn.close()
+        return res
+
+
+    #=============#
+    # Set Methods #
+    #=============#
+    def set_file_path_by_image_id(self, image_id, file_path):
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        try:
+            curs.execute('''
+                UPDATE paper
+                SET file_path = %s
+                WHERE image_id = %d
+            ''' % (file_path, image_id))
             conn.commit()
         except sqlite3.OperationalError: self.show_error_message()
         conn.close()
 
 
+    def set_chat_room_id_by_image_id(self, image_id, chat_room_id):
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        try:
+            curs.execute('''
+                UPDATE paper
+                SET chat_room_id = %s
+                WHERE image_id = %d
+            ''' % (chat_room_id, image_id))
+            conn.commit()
+        except sqlite3.OperationalError: self.show_error_message()
+        conn.close()
+
+
+    #=============#
+    # Get Methods #
+    #=============#
     def get_all_features(self):
         conn = sqlite3.connect(self.db_name)
         curs = conn.cursor()
@@ -60,7 +100,7 @@ class DBHandler():
         return res
 
 
-    def get_features_by_id(self, dbID):
+    def get_features_by_image_id(self, image_id):
         conn = sqlite3.connect(self.db_name)
         curs = conn.cursor()
         res  = ''
@@ -68,7 +108,7 @@ class DBHandler():
             curs.execute('''
                 SELECT fs_x, fs_y, fh, fa, fp FROM paper
                 WHERE id = %d
-            ''' % dbID)
+            ''' % image_id)
             conn.commit()
             res = curs.fetchone()
         except sqlite3.OperationalError: self.show_error_message()
@@ -76,15 +116,47 @@ class DBHandler():
         return res
 
 
-    def get_image_path(self, dbID):
+    def get_registered_date_by_image_id(self, image_id):
         conn = sqlite3.connect(self.db_name)
         curs = conn.cursor()
         res  = ''
         try:
             curs.execute('''
-                SELECT image_path FROM paper
+                SELECT registered_date FROM paper
                 WHERE id = %d
-            ''' % dbID)
+            ''' % image_id)
+            conn.commit()
+            res = curs.fetchone()[0]
+        except sqlite3.OperationalError: self.show_error_message()
+        conn.close()
+        return res
+
+
+    def get_file_path_by_image_id(self, image_id):
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        res  = ''
+        try:
+            curs.execute('''
+                SELECT file_path FROM paper
+                WHERE id = %d
+            ''' % image_id)
+            conn.commit()
+            res = curs.fetchone()[0]
+        except sqlite3.OperationalError: self.show_error_message()
+        conn.close()
+        return res
+
+
+    def get_chat_room_id_by_image_id(self, image_id):
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        res  = ''
+        try:
+            curs.execute('''
+                SELECT chat_room_id FROM paper
+                WHERE id = %d
+            ''' % image_id)
             conn.commit()
             res = curs.fetchone()[0]
         except sqlite3.OperationalError: self.show_error_message()

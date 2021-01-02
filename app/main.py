@@ -36,20 +36,36 @@ class Env:
         server_th.start()
 
 
-    def register(self, data):
-        self.db_handler.register(*data)
+    def register_and_get_image_id(self, data):
+        return self.db_handler.register_and_get_image_id(*data)
+
+
+    def set_file_path_by_image_id(self, image_id, file_path):
+        self.db_handler.set_file_path_by_image_id(image_id, file_path)
+
+
+    def set_chat_room_id_by_image_id(self, image_id, chat_room_id):
+        self.db_handler.set_chat_room_id_by_image_id(image_id, chat_room_id)
 
 
     def get_all_features(self):
         return self.db_handler.get_all_features()
 
 
-    def get_features_by_id(self, db_id):
-        return self.db_handler.get_features_by_id(db_id)
+    def get_features_by_image_id(self, image_id):
+        return self.db_handler.get_features_by_image_id(image_id)
 
 
-    def get_image_path(self, db_id):
-        return self.db_handler.get_image_path(db_id)
+    def get_registered_date_by_image_id(self, image_id):
+        return self.db_handler.get_registered_date_by_image_id(image_id)
+
+
+    def get_file_path_by_image_id(self, image_id):
+        return self.db_handler.get_file_path_by_image_id(image_id)
+
+
+    def get_chat_room_id_by_image_id(self, image_id):
+        return self.db_handler.get_chat_room_id_by_image_id(image_id)
 
     def register_chat_room_id(self, image_id):
         return self.db_handler.register_chat_room_id(image_id)
