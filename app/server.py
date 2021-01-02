@@ -36,35 +36,46 @@ class TearingServer(scts.ThreadingMixIn, scts.TCPServer):
         logger.info('Server start (port: %d)' % port)
         print('Serving at port: %d' % port)
 
+
     def register_and_get_image_id(self, data):
         return self.env.register_and_get_image_id(data)
+
 
     def set_file_path_by_image_id(self, image_id, file_path):
         self.env.set_file_path_by_image_id(image_id, file_path)
 
+
     def set_chat_room_id_by_image_id(self, image_id, chat_room_id):
         self.env.set_chat_room_id_by_image_id(image_id, chat_room_id)
+
 
     def get_all_features(self):
         return self.env.get_all_features()
 
+
     def get_features_by_image_id(self, image_id):
         return self.env.get_features_by_image_id(image_id)
+
 
     def get_registered_date_by_image_id(self, image_id):
         return self.env.get_registered_date_by_image_id(image_id)
 
+
     def get_file_path_by_image_id(self, image_id):
         return self.env.get_file_path_by_image_id(image_id)
+
 
     def get_chat_room_id_by_image_id(self, image_id):
         return self.env.get_chat_room_id_by_image_id(image_id)
 
+
     def register_chat_room_id(self, image_id):
         return self.env.register_chat_room_id(image_id)
 
+
     def create_chat_room_db_table(self, chat_room_id):
         return self.env.create_chat_room_db_table
+
 
 class TearingHandler(hs.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -76,32 +87,35 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
 
         return hs.SimpleHTTPRequestHandler.do_GET(self)
 
+
     def do_POST(self):
         os.environ['REQUEST_METHOD'] = 'POST'
         form = cgi.FieldStorage(self.rfile, self.headers)
         cmd = form['cmd'].value
         print('[info] Recieve data from client------')
         print('cmd: ', cmd)
-        #--------------#   
+        #--------------#
         # Upload_image #
         #--------------#
         if cmd == 'upload_image':
             try:
                 image = form['image'].value
-                
-                #紙片の特徴量を抽出
-                features =  self.extract_features(image)
 
-                # TODO:
-                #  抽出した特徴量をDBに登録
-                #  image_idを返してもらう
+                registered_date = dt.datetime.now()
+                features = self.extract_features(image)
+                file_path = ""
+                chat_room_id = ""
+
+                data = [registered_date, *features.values(), file_path, chat_room_id]
+
+                image_id = self.register_and_get_image_id(data)
 
                 response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'success',
                         'message': 'The image has been uploaded.',
-                        'image_id': '1'
+                        'image_id': image_id
                     }
                 }
             except KeyError as e:
@@ -214,7 +228,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 image_id = form['image_id'].value
                 # TODO:
                 #  image_idの紙片とchat_room_idに値がある紙片でマッチングさせる
-                #  マッチング相手のchat_room_idを返す 
+                #  マッチング相手のchat_room_idを返す
                 response_body = {
                     'cmd': cmd,
                     'data': {
@@ -233,9 +247,9 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'chat_room_id': '1'
                     }
                 }
-        
+
         #-------------#
-        # update_chat #   
+        # update_chat #
         #-------------#
         elif cmd == 'update_chat':
             try:
@@ -374,7 +388,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(json.dumps(response_body).encode('utf-8'))
-       
+
         print('[info] Send data to client------\n', response_body)
 
     def save_content_file(self, file_name, file_data):
