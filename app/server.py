@@ -36,17 +36,29 @@ class TearingServer(scts.ThreadingMixIn, scts.TCPServer):
         logger.info('Server start (port: %d)' % port)
         print('Serving at port: %d' % port)
 
-    def register(self, data):
-        self.env.register(data)
+    def register_and_get_image_id(self, data):
+        return self.env.register_and_get_image_id(data)
+
+    def set_file_path_by_image_id(self, image_id, file_path):
+        self.env.set_file_path_by_image_id(image_id, file_path)
+
+    def set_chat_room_id_by_image_id(self, image_id, chat_room_id):
+        self.env.set_chat_room_id_by_image_id(image_id, chat_room_id)
 
     def get_all_features(self):
         return self.env.get_all_features()
 
-    def get_features_by_id(self, db_id):
-        return self.env.get_features_by_id(db_id)
+    def get_features_by_image_id(self, image_id):
+        return self.env.get_features_by_image_id(image_id)
 
-    def get_image_path(self, db_id):
-        return self.env.get_image_path(db_id)
+    def get_registered_date_by_image_id(self, image_id):
+        return self.env.get_registered_date_by_image_id(image_id)
+
+    def get_file_path_by_image_id(self, image_id):
+        return self.env.get_file_path_by_image_id(image_id)
+
+    def get_chat_room_id_by_image_id(self, image_id):
+        return self.env.get_chat_room_id_by_image_id(image_id)
 
 
 class TearingHandler(hs.SimpleHTTPRequestHandler):
