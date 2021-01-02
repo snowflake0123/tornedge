@@ -10,10 +10,6 @@
     align-items: center;
 }
 
-.middle-text {
-  font-size: 1.5em;
-}
-
-.huge-icon {
-  font-size: 80px;
+.larger-icon {
+  font-size: 50px;
 }

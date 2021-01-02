@@ -13,7 +13,7 @@ import { IonBackButton,
        } from '@ionic/react';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom'
-import './Home.css';
+import './Functions.css';
 import { chatbubbles, document } from 'ionicons/icons';
 
 const Functions: React.FC<RouteComponentProps> = (props) => {
