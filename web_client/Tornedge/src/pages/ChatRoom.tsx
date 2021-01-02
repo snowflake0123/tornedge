@@ -1,5 +1,4 @@
 import {
-  IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
@@ -11,7 +10,6 @@ import {
   IonPage,
   IonRefresher,
   IonRefresherContent,
-  IonTextarea,
   IonTitle,
   IonToolbar,
   useIonViewWillEnter,
@@ -21,21 +19,11 @@ import {
 import React, { useState } from 'react';
 import './ChatRoom.css';
 import { RefresherEventDetail } from '@ionic/core';
-import { chevronDownCircleOutline, reload } from 'ionicons/icons';
-import { IonReactRouter } from '@ionic/react-router';
+import { arrowDownCircleOutline, reload } from 'ionicons/icons';
 import { RouteComponentProps } from 'react-router';
 import axios from 'axios';
-import { convertCompilerOptionsFromJson, setConstantValue } from 'typescript';
 import { generateFormData } from '../generateFormData';
 
-function doRefresh(event: CustomEvent<RefresherEventDetail>) {
-  console.log('Begin async operation');
-
-  setTimeout(() => {
-    console.log('Async operation has ended');
-    event.detail.complete();
-  }, 1000);
-}
 
 type Message = {
   image_id: string
@@ -49,7 +37,6 @@ type Messages = {
 const initMessages: Message[] = []
 
 const MyMsg: React.FC<Message> = (props) => {
-
   return (
     <IonItem lines="none">
       <IonLabel className="ion-margin-start me-speech-bubble ion-padding ion-text-wrap">
@@ -89,10 +76,10 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
   const [messages, setMessages] = useState(initMessages);
   const [message, setMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');  
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleClickBack = () => {
-    props.history.goBack(); 
+    props.history.goBack();
   }
 
 
@@ -103,7 +90,7 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     *   Step3: Reset value of input textarea
     */
     console.log('[API] send_chat');
-    
+
     // 1: send request
     const new_message = localStorage.getItem('image_id') + ', ' + message
     console.log(new_message)
@@ -115,7 +102,7 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     axios.post('http://localhost:56060', formData).then((response) => {
       // 2: update chatlog value in state
       const res_data = response.data['data']
-      if(res_data['result'] == 'success') {
+      if(res_data['result'] === 'success') {
         const chat_log:Array<string> = res_data['chat_log']
         const new_log:Array<Message> = []
         chat_log.map((value, index) => {
@@ -156,7 +143,7 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     axios.post('http://localhost:56060', formData).then((response) => {
       // 2: update chat log value in state
       const res_data = response.data['data']
-      if(res_data['result'] == 'success') {
+      if(res_data['result'] === 'success') {
         const chat_log:Array<string> = res_data['chat_log']
         const new_log:Array<Message> = []
         chat_log.map((value, index) => {
@@ -180,6 +167,11 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     })
   }
 
+  function handlePullRefresher(event: CustomEvent<RefresherEventDetail>) {
+    handleClickUpdate();
+    event.detail.complete();
+  }
+
   useIonViewWillEnter(() => handleClickUpdate())
 
   return (
@@ -200,9 +192,9 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
 
       {/* Chat Space */}
       <IonContent>
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        <IonRefresher slot="fixed" onIonRefresh={handlePullRefresher}>
           <IonRefresherContent
-            pullingIcon={chevronDownCircleOutline}
+            pullingIcon={arrowDownCircleOutline}
             pullingText="Pull to refresh"
             refreshingSpinner="circles"
             refreshingText="Refreshing...">
@@ -214,9 +206,9 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       {/* Input */}
       <IonItem>
         <IonInput
-          className="ion-margin-start" 
-          color="Midium" 
-          placeholder="Message" 
+          className="ion-margin-start"
+          color="Midium"
+          placeholder="Message"
           value={message}
           onIonChange={e => setMessage(e.detail.value!)}
           required

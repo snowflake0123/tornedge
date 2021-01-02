@@ -1,6 +1,5 @@
 import {
   IonBackButton,
-  IonButton,
   IonButtons,
   IonCard,
   IonCardHeader,
@@ -19,20 +18,12 @@ import { RouteComponentProps } from 'react-router-dom'
 import './ChatTop.css';
 import { addCircle, enter } from 'ionicons/icons';
 
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { generateFormData } from '../generateFormData';
-import { Cipher } from 'crypto';
 
 const ChatTop: React.FC<RouteComponentProps> = (props) => {
   const [showToast, setShowToast] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  const inputPhotoRef = React.useRef<HTMLInputElement>(null);
-  const handleClickPhoto = () => {
-    if(inputPhotoRef && inputPhotoRef.current) {
-      inputPhotoRef.current.click();
-    }
-  }
 
   const handleClickCreateChatRoom = () => {
    /* Functions
@@ -54,7 +45,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
         // 2: Save chat_room_id
         const res_data = response.data['data'];
         console.log(response)
-        if(res_data['result'] == 'success') {
+        if(res_data['result'] === 'success') {
           localStorage.chat_room_id = res_data['chat_room_id'];
           console.log('chat_room_id', localStorage.getItem('chat_room_id'))
           props.history.push('/chatRoom');
