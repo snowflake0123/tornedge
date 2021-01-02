@@ -138,15 +138,15 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 file_data = form['file'].value
                 self.save_content_file(file_name, file_data)
 
-                # TODO:file_pathをDBに保存する
                 file_path = './client_data/files/' + file_name
+
+                self.set_file_path_by_image_id(image_id, file_path)
 
                 response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'success',
-                        'message': 'The image has been uploaded.',
-                        'image_id': '1'
+                        'message': 'The File has been uploaded.',
                     }
                 }
             except:
@@ -155,7 +155,6 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     'data': {
                         'result': 'failure',
                         'message': 'Failed to upload image.',
-                        'image_id': '1'
                     }
                 }
 
