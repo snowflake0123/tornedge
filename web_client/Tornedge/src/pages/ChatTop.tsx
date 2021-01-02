@@ -43,13 +43,15 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     console.log('[API] create_chat_room');
 
     // 1: Send request
-    if(localStorage.getItem('chat_room_id') !== null) {
+    if (localStorage.getItem('chat_room_id')) {
+      props.history.push('/chatRoom');
+    } else {
       const formData = generateFormData(
         'cmd', 'create_chat_room',
         'image_id', localStorage.getItem('image_id')
       );
       axios.post('http://localhost:56060', formData).then((response) => {
-        // 2: Save chat_room_id 
+        // 2: Save chat_room_id
         const res_data = response.data['data'];
         console.log(response)
         if(res_data['result'] == 'success') {
@@ -67,7 +69,6 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
         console.log(error);
       });
     }
-    // 3: move ot ChatRoom page
   }
 
   const handleClickEnterChatRoom = () => {
