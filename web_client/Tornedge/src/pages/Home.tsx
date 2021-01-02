@@ -2,8 +2,12 @@ import { IonButton,
          IonContent,
          IonIcon,
          IonLabel,
+         IonLoading,
          IonNote,
          IonPage,
+         IonProgressBar,
+         IonToast,
+         useIonViewWillLeave
        } from '@ionic/react';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom'
@@ -23,37 +27,46 @@ const Home: React.FC<RouteComponentProps> = (props) => {
 
   const [imageID, setImageID] = useLocalStorage<String | null>('image_id', null);
   const [photoName, setPhotoName] = useState("No photo chosen");
+  const [showLoading, setShowLoading] = useState(false);
+  const [showProgressBar, setShowProgressBar] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showFailureToast, setShowFailureToast] = useState(false);
   const handleChangePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log('[API] upload_image');
     const file = event.target.files;
     let fName = "No photo chosen";
     if (file !== null && file[0] !== (null || undefined)) {
       fName = file[0].name;
-      // TODO:
-      // Client: FormDataを作り，サーバへPOSTリクエストを送る
-      //// const formData = generateFormData(1,"hello",3,"hogehoge");
-      // Server: 紙片画像から特徴量抽出してDBに登録する
-      // Client: サーバから image_id を受け取って LocalStorage に保存する
-      //// setImageID(image_id)
       const formData = generateFormData(
         'cmd', 'upload_image',
         'image', file[0]
       )
+      setShowLoading(true);
+      setShowProgressBar(true);
       axios.post('http://localhost:56060', formData).then((response) => {
-        // localStorage.image_id = response.data.data.image_id;
-        // console.log('localstorage', localStorage.getItem('image_id'));
+        localStorage.clear();
         setImageID(response.data['data']['image_id']);
         console.log('localstorage', imageID);
-        // props.history.push('/Functions');
+        setShowSuccessToast(true);
+        props.history.push('/Functions');
       })
       .catch((error) => {
+        setShowProgressBar(false);
+        setShowLoading(false);
+        setShowFailureToast(true);
         console.log(error);
       });
-      props.history.push('/Functions');
+      // props.history.push('/Functions');
     }
     console.log(fName);
     setPhotoName(fName);
   }
+
+  useIonViewWillLeave(() => {
+    setShowProgressBar(false);
+    setShowLoading(false);
+    setShowFailureToast(false);
+  });
 
   return (
     <IonPage>
@@ -69,7 +82,29 @@ const Home: React.FC<RouteComponentProps> = (props) => {
             <input className="display-none" type="file" ref={inputPhotoRef} accept="image/*" onChange={handleChangePhoto}/>
           </IonButton>
           <IonLabel className="ion-margin">{photoName}</IonLabel>
+          <IonProgressBar type="indeterminate" style={{ display: showProgressBar ? '' : 'none' }}></IonProgressBar>
         </div>
+
+        <IonLoading
+          isOpen={showLoading}
+          message={'Uploading...'}
+        />
+        <IonToast
+          isOpen={showSuccessToast}
+          color="primary"
+          onDidDismiss={() => setShowSuccessToast(false)}
+          message="Image Upload Succeeded."
+          position="bottom"
+          duration={2500}
+        />
+        <IonToast
+          isOpen={showFailureToast}
+          color="danger"
+          onDidDismiss={() => setShowFailureToast(false)}
+          message="Image Upload Failed."
+          position="bottom"
+          duration={2500}
+        />
       </IonContent>
     </IonPage>
   );
