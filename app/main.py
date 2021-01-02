@@ -52,6 +52,14 @@ class Env:
         return self.db_handler.get_all_features()
 
 
+    def get_features_file_path_exists(self):
+        return self.db_handler.get_features_file_path_exists()
+
+
+    def get_features_chat_room_id_exists(self):
+        return self.db_handler.get_features_chat_room_id_exists()
+
+
     def get_features_by_image_id(self, image_id):
         return self.db_handler.get_features_by_image_id(image_id)
 
