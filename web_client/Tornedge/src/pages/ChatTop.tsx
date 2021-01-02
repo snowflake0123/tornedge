@@ -50,9 +50,9 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
       );
       axios.post('http://localhost:56060', formData).then((response) => {
         // 2: Save chat_room_id 
-        const res_data = response.data;
+        const res_data = response.data['data'];
         console.log(response)
-        if(res_data['result'] === 'success') {
+        if(res_data['result'] == 'success') {
           localStorage.chat_room_id = res_data['chat_room_id'];
           console.log('chat_room_id', localStorage.getItem('chat_room_id'))
         } else {
@@ -74,25 +74,29 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
     *   1: Send request
     *   2: Save chat_room_id to localStrorage
     */
-    console.log('[API] enter_chat_room');
+    if(localStorage.getItem('chat_room_id')) {
+      props.history.push('/chatRoom');
+    } else {
+      console.log('[API] enter_chat_room');
 
-    // 1: Send request
-    const formData = generateFormData(
-      'cmd', 'chat_room_id',
-      'image_id', localStorage.getItem('image_id')
-    );
-    axios.post('http://localhost:56060', formData).then((response) => {
-      // 2: Save chat_room_id to localStorage
-      const res_data = response.data['data'];
-      if(res_data['result'] === 'success') {
-        localStorage.chat_room_id = res_data['chat_room_id'];
-        console.log('chat_room_id', localStorage.getItem('chat_room_id'))
-      } else {
-        setErrorMessage(res_data['message']);
-        setShowToast(true);
-      }
-    })
-    props.history.push('/chatRoom');
+      // 1: Send request
+      const formData = generateFormData(
+        'cmd', 'enter_chat_room',
+        'image_id', localStorage.getItem('image_id')
+      );
+      axios.post('http://localhost:56060', formData).then((response) => {
+        // 2: Save chat_room_id to localStorage
+        const res_data = response.data['data'];
+        if(res_data['result'] === 'success') {
+          localStorage.chat_room_id = res_data['chat_room_id'];
+          console.log('chat_room_id', localStorage.getItem('chat_room_id'))
+          props.history.push('/chatRoom');
+        } else {
+          setErrorMessage(res_data['message']);
+          setShowToast(true);
+        }
+      });
+    }
   }
 
   return (
@@ -137,7 +141,7 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
           message={errorMessage}
-          duration={200}
+          duration={5000}
         />
       </IonContent>
     </IonPage>
