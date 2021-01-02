@@ -53,6 +53,14 @@ class TearingServer(scts.ThreadingMixIn, scts.TCPServer):
         return self.env.get_all_features()
 
 
+    def get_features_file_path_exists(self):
+        return self.env.get_features_file_path_exists()
+
+
+    def get_features_chat_room_id_exists(self):
+        return self.env.get_features_chat_room_id_exists()
+
+
     def get_features_by_image_id(self, image_id):
         return self.env.get_features_by_image_id(image_id)
 
@@ -103,12 +111,12 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
 
                 registered_date = dt.datetime.now()
                 features = self.extract_features(image)
-                file_path = ""
-                chat_room_id = ""
+                file_path = ''
+                chat_room_id = ''
 
                 data = [registered_date, *features.values(), file_path, chat_room_id]
 
-                image_id = self.register_and_get_image_id(data)
+                image_id = self.server.register_and_get_image_id(data)
 
                 response_body = {
                     'cmd': cmd,
@@ -140,7 +148,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
 
                 file_path = './client_data/files/' + file_name
 
-                self.set_file_path_by_image_id(image_id, file_path)
+                self.server.set_file_path_by_image_id(image_id, file_path)
 
                 response_body = {
                     'cmd': cmd,
@@ -158,31 +166,38 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     }
                 }
 
-        #--------------#
-        # receive_file #
-        #--------------#
+        #---------------#
+        # download_file #
+        #---------------#
         elif cmd == 'download_file':
             try:
                 image_id = int(form['image_id'].value)
                 # TODO:
                 #  image_idの紙片とfile_pathがある紙片とでマッチング処理をする
                 #  マッチング相手のfile_pathの値を返す
+                input_image_id_features = self.server.get_features_by_image_id(image_id)
+                candidates_features = self.server.get_features_file_path_exists()
+
+                matched_image_id = self.server.matcher.match(input_image_id_features, candidates_features, use_fp=True)
+
+                file_path = self.server.get_file_path_by_image_id(matched_image_id)
+
                 response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'success',
                         'message': 'Successfully to download the file.',
-                        'file_path': './client_data/files/a.png'
+                        'file_path': file_path
                     }
                 }
             except:
                 logger.error('Failed to download the file.');
-                reponse_body = {
+                response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'failure',
                         'message': 'Failed to create the chat room.',
-                        'chat_room_id': '1',
+                        'file_path': '',
                     }
                 }
 
@@ -291,7 +306,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     }
                 }
             except:
-                console.log('[ERROR] Error occured in exit_chat_room')
+                print('[ERROR] Error occured in exit_chat_room')
                 logger.error('Error occured in exit_chat_room')
                 response_body = {
                     'cmd': cmd,
@@ -390,10 +405,12 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
 
         print('[info] Send data to client------\n', response_body)
 
+
     def save_content_file(self, file_name, file_data):
         outfile_path = './client_data/files/' + file_name
         self.server.image_util.output_binaryfiledata_to_file(
             file_data, outfile_path)
+
 
     def extract_features(self, receipt_data):
         # レシート画像をバイナリデータからnumpy配列(BGR)に変換
@@ -405,6 +422,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         features = self.ipm.extract_features(img_numpy_bgr)
 
         return features
+
 
     def make_message_response_body(self, msg):
         response = {'message': msg}

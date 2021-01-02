@@ -89,12 +89,54 @@ class DBHandler():
                 SELECT * FROM paper
             ''')
             conn.commit()
-            res = {row[0]:{'shape_x':row[1],
-                           'shape_y':row[2],
-                           'height':row[3],
-                           'angle':row[4],
-                           'position':row[5]
+            res = {row[0]:{'shape_x':row[2],
+                           'shape_y':row[3],
+                           'height':row[4],
+                           'angle':row[5],
+                           'position':row[6]
                            } for row in curs.fetchall()}
+        except sqlite3.OperationalError: self.show_error_message()
+        conn.close()
+        return res
+
+
+    def get_features_file_path_exists(self):
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        res = ''
+        try:
+            curs.execute('''
+                SELECT * FROM paper
+                WHERE file_path != ''
+            ''')
+            conn.commit()
+            res = {row[0]: {'shape_x': row[2],
+                            'shape_y': row[3],
+                            'height': row[4],
+                            'angle': row[5],
+                            'position': row[6]
+                            } for row in curs.fetchall()}
+        except sqlite3.OperationalError: self.show_error_message()
+        conn.close()
+        return res
+
+
+    def get_features_chat_room_id_exists(self):
+        conn = sqlite3.connect(self.db_name)
+        curs = conn.cursor()
+        res = ''
+        try:
+            curs.execute('''
+                SELECT * FROM paper
+                WHERE chat_room_id != ''
+            ''')
+            conn.commit()
+            res = {row[0]: {'shape_x': row[2],
+                            'shape_y': row[3],
+                            'height': row[4],
+                            'angle': row[5],
+                            'position': row[6]
+                            } for row in curs.fetchall()}
         except sqlite3.OperationalError: self.show_error_message()
         conn.close()
         return res
@@ -164,31 +206,31 @@ class DBHandler():
         return res
 
 
-    def register_chat_room_id(self, image_id):
-        # Create random ID using datatime and uuid4
-        from datetime import datetime
-        from uuid import uuid4
-        chat_room_id = datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
-        # Register chat_room_id to database
-        conn = sqlite3.connect(self.db_name)
-        curs = conn.cursor()
-        res = ''
-        try:
-            curs.execute('''
-                UPDATE paper
-                SET chat_room_id='%s' 
-                WHERE image_id=%d
-            ''' % (chat_room_id, int(image_id)))
-            conn.commit()
-            res = chat_room_id
-        except sqlite3.OperationalError as e:
-            print(e)
-            self.show_error_message()
-        
-        conn.close()
-        return res
+    # def register_chat_room_id(self, image_id):
+    #     # Create random ID using datatime and uuid4
+    #     from datetime import datetime
+    #     from uuid import uuid4
+    #     chat_room_id = datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
+    #     # Register chat_room_id to database
+    #     conn = sqlite3.connect(self.db_name)
+    #     curs = conn.cursor()
+    #     res = ''
+    #     try:
+    #         curs.execute('''
+    #             UPDATE paper
+    #             SET chat_room_id='%s'
+    #             WHERE image_id=%d
+    #         ''' % (chat_room_id, int(image_id)))
+    #         conn.commit()
+    #         res = chat_room_id
+    #     except sqlite3.OperationalError as e:
+    #         print(e)
+    #         self.show_error_message()
 
-    
+    #     conn.close()
+    #     return res
+
+
     def create_chat_room_db_table(self, chat_room_id):
         conn = sqlite3.connect(self.db_name)
         cur  = conn.cursor()

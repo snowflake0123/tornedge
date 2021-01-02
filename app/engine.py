@@ -74,7 +74,7 @@ class MatchingEngine():
         return d_arr
 
 
-    def match(self, features, candidates, use_fh=True, use_fa=True, use_fp=True):
+    def match(self, features, candidates, use_fh=True, use_fa=False, use_fp=False):
         # Calculates feature similarities.
         logger.info('use_fh: {}'.format(use_fh))
         print('Use Fh: {}'.format(use_fh))
