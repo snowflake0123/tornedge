@@ -46,32 +46,7 @@ type Messages = {
   messages: Message[]
 }
 
-const testMessages: Message[] = [
-  {
-    image_id: "1",
-    text: "Hi, we met earlier. I'm Bob."
-  },
-  {
-    image_id: "2",
-    text: "Hey Bob. I'm Kenny."
-  },
-  {
-    image_id: "1",
-    text: "I'd like to continue what we were talking about earlier, if that's okay."
-  },
-  {
-    image_id: "2",
-    text: "Of course."
-  },
-  {
-    image_id: "2",
-    text: "Oh, I'm sorry. I've got some business to attend to later, so can I have ten minutes with you?"
-  },
-  {
-    image_id: "1",
-    text: "Okay! Then let's talk briefly."
-  },
-]
+const initMessages: Message[] = []
 
 const MyMsg: React.FC<Message> = (props) => {
 
@@ -111,10 +86,10 @@ const MsgList: React.FC<Messages> = (props) => {
 
 
 const ChatRoom: React.FC<RouteComponentProps> = (props) => {
-  const [messages, setMessages] = useState(testMessages)
-  const [message, setMessage] = useState('')
-  const [showToast, setShowToast] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')  
+  const [messages, setMessages] = useState(initMessages);
+  const [message, setMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');  
 
   const handleClickBack = () => {
     props.history.goBack(); 
@@ -158,6 +133,8 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       }
     })
     .catch((error) => {
+      setErrorMessage('Failed to send the chat message');
+      setShowToast(true);
       console.log(error);
     })
     // 3: Reset value of input textarea
@@ -197,6 +174,8 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       }
     })
     .catch((error) => {
+      setErrorMessage('Failed to update the chat log');
+      setShowToast(true);
       console.log(error);
     })
   }
@@ -245,12 +224,13 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
         </IonInput>
       </IonItem>
       <div className="ion-padding">
-        <IonButton color="success" expand="block" onClick={() => handleClickSend()}>Send</IonButton>
+        <IonButton className="send-button" expand="block" onClick={() => handleClickSend()}>Send</IonButton>
       </div>
 
       {/* Toast */}
       <IonToast
         isOpen={showToast}
+        position="middle"
         color="danger"
         onDidDismiss={() => setShowToast(false)}
         message={errorMessage}

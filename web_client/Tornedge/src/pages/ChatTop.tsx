@@ -55,18 +55,19 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
         if(res_data['result'] == 'success') {
           localStorage.chat_room_id = res_data['chat_room_id'];
           console.log('chat_room_id', localStorage.getItem('chat_room_id'))
+          props.history.push('/chatRoom');
         } else {
-          console.log('e')
-          setErrorMessage(res_data['message']);
+          setErrorMessage('Failed to create the chat room');
           setShowToast(true);
         }
       })
       .catch((error) => {
+        setErrorMessage('Failed to create the chat room')
+        setShowToast(true)
         console.log(error);
       });
     }
     // 3: move ot ChatRoom page
-    props.history.push('/chatRoom');
   }
 
   const handleClickEnterChatRoom = () => {
@@ -92,9 +93,13 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
           console.log('chat_room_id', localStorage.getItem('chat_room_id'))
           props.history.push('/chatRoom');
         } else {
-          setErrorMessage(res_data['message']);
+          setErrorMessage('Failed to enter the chat room');
           setShowToast(true);
         }
+      })
+      .catch((response) => {
+        setErrorMessage('Failed to enter the chat room');
+        setShowToast(true);
       });
     }
   }
@@ -139,6 +144,8 @@ const ChatTop: React.FC<RouteComponentProps> = (props) => {
         {/* Toast */}
         <IonToast
           isOpen={showToast}
+          position="middle"
+          color="danger"
           onDidDismiss={() => setShowToast(false)}
           message={errorMessage}
           duration={5000}
