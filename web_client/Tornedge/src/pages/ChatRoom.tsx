@@ -117,32 +117,6 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
   const [errorMessage, setErrorMessage] = useState('')  
 
   const handleClickBack = () => {
-    console.log('[API] exit_chat');
-   /* Function
-    *   Step1: Send request
-    *   Step2: clear chat log data in state
-    *   Step3: back to ChatTop page
-    */   
-
-    // 1: send request
-    const formData = generateFormData(
-      'cmd', 'exit_chat',
-      'image_id', '1'
-    )
-    axios.post('http://localhost:56060', formData).then((response) => {
-      // 2: clear chat log data in state
-      const res_data = response.data['data']
-      if(res_data['result'] == 'success') {
-        setMessages([]);
-      } else {
-        setErrorMessage(res_data['message']);
-        setShowToast(true);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    })
-    // 3: back to ChatTop page
     props.history.goBack(); 
   }
 
@@ -156,20 +130,35 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
     console.log('[API] send_chat');
     
     // 1: send request
+    const new_message = localStorage.getItem('image_id') + ', ' + message
+    console.log(new_message)
     const formData = generateFormData(
       'cmd', 'send_chat',
-      'message', message,
+      'message', new_message,
       'chat_room_id', localStorage.getItem('chat_room_id')
     );
     axios.post('http://localhost:56060', formData).then((response) => {
-      // 2: update chat log value in state
-      const res_data = response.data['data'];
-      if(res_data['result'] === 'success') {
-        setMessages(res_data['chat_log']);
+      // 2: update chatlog value in state
+      const res_data = response.data['data']
+      if(res_data['result'] == 'success') {
+        const chat_log:Array<string> = res_data['chat_log']
+        const new_log:Array<Message> = []
+        chat_log.map((value, index) => {
+          const line = value.split(',')
+          const obj:Message = {
+            'image_id': line[0],
+            'text': line[1]
+          }
+          new_log.push(obj);
+        })
+        setMessages(new_log);
       } else {
         setErrorMessage(res_data['message']);
         setShowToast(true);
       }
+    })
+    .catch((error) => {
+      console.log(error);
     })
     // 3: Reset value of input textarea
     setMessage('');
@@ -191,7 +180,17 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       // 2: update chat log value in state
       const res_data = response.data['data']
       if(res_data['result'] == 'success') {
-        setMessages(res_data['chat_log']);
+        const chat_log:Array<string> = res_data['chat_log']
+        const new_log:Array<Message> = []
+        chat_log.map((value, index) => {
+          const line = value.split(',')
+          const obj:Message = {
+            'image_id': line[0],
+            'text': line[1]
+          }
+          new_log.push(obj);
+        })
+        setMessages(new_log);
       } else {
         setErrorMessage(res_data['message']);
         setShowToast(true);
@@ -252,9 +251,10 @@ const ChatRoom: React.FC<RouteComponentProps> = (props) => {
       {/* Toast */}
       <IonToast
         isOpen={showToast}
+        color="danger"
         onDidDismiss={() => setShowToast(false)}
         message={errorMessage}
-        duration={200}
+        duration={5000}
       />
 
     </IonPage>

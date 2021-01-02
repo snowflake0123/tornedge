@@ -85,6 +85,10 @@ class TearingServer(scts.ThreadingMixIn, scts.TCPServer):
         return self.env.create_chat_room_db_table
 
 
+    def init_chat_room_db_table(self, image_id, chat_room_id):
+        return self.env.init_chat_room_db_table(image_id, chat_room_id)
+
+
 class TearingHandler(hs.SimpleHTTPRequestHandler):
     def do_GET(self):
         url = urlparse(self.path)
@@ -137,7 +141,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     }
                 }
         #-------------#
-        # Upload_file #
+        # upload_file #
         #-------------#
         elif cmd == 'upload_file':
             try:
@@ -173,10 +177,11 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         elif cmd == 'download_file':
             try:
                 image_id = int(form['image_id'].value)
-
+                #特徴量を抽出する
                 input_image_id_features = self.server.get_features_by_image_id(image_id)
+                #file_pathが存在する紙片データを抜き出す
                 candidates_features = self.server.get_features_file_path_exists()
-
+                #マッチング処理を行う
                 matched_image_id = self.server.matcher.match(input_image_id_features, candidates_features, use_fh=True)
                 print('matched_image_id =', matched_image_id)
 
@@ -210,11 +215,21 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 image_id = int(form['image_id'].value.replace('\"', ''))
 
                 # TODO:
-                #  chat_room_idを作成し，DBのimage_idの行に値を登録
-                chat_room_id = self.server.register_chat_room_id(image_id)
-                #  chat_room_idを元にDBのテーブルを作成
-                self.server.create_chat_room_db_table(chat_room_id)
-                #  chat_room_idを返す
+                chat_room_id = self.server.get_chat_room_id_by_image_id(image_id)
+                if chat_room_id == '':
+                    # chat_room_idを作成し，DBのimage_idの行に値を登録
+                    from datetime import datetime
+                    from uuid import uuid4
+                    chat_room_id = 'chat_room' + datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
+                    chat_room_id =  chat_room_id.replace('-', '_')
+                    self.server.set_chat_room_id_by_image_id(image_id, chat_room_id)
+                    # chat_room_idを元にログを記録するファイルを作成
+                    chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv' 
+                    # ログファイルの内容を初期化
+                    with open(chat_log_file_path, 'w') as f:
+                        print('%s, The chat room was created.' % image_id, file=f)
+
+                # chat_room_idを返す
                 response_body = {
                     'cmd': cmd,
                     'data': {
@@ -236,20 +251,31 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 }
 
         #-----------------#
-        # Enter_chat_room #
+        # enter_chat_room #
         #-----------------#
         elif cmd == 'enter_chat_room':
             try:
-                image_id = form['image_id'].value
+                image_id = int(form['image_id'].value)
                 # TODO:
-                #  image_idの紙片とchat_room_idに値がある紙片でマッチングさせる
-                #  マッチング相手のchat_room_idを返す
+                # image_idの紙片とchat_room_idに値がある紙片でマッチングさせる
+                # 特徴量を抽出する
+                input_image_id_features = self.server.get_features_by_image_id(image_id)
+                # chat_room_idが存在する紙片データを抜き出す
+                candidates_features = self.server.get_features_chat_room_id_exists()
+                # マッチング処理を行う
+                matched_image_id = self.server.matcher.match(input_image_id_features, candidates_features, use_fh=True)
+                # マッチング相手のchat_room_idを返す
+                partner_chat_room_id = self.server.get_chat_room_id_by_image_id(matched_image_id)
+                # マッチング相手のchat_room_idを初期化する
+                self.server.set_chat_room_id_by_image_id(matched_image_id, '')
+                
+                print('partner_chat_room_id = ', partner_chat_room_id)
                 response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'success',
                         'message': 'Successfully to enter the chat room.',
-                        'chat_room_id': '1'
+                        'chat_room_id': partner_chat_room_id
                     }
                 }
             except:
@@ -263,6 +289,42 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     }
                 }
 
+        #-----------#
+        # send chat #
+        #-----------#
+        elif cmd == 'send_chat':
+            try:
+                chat_room_id = form['chat_room_id'].value
+                message = form['message'].value
+                #メッセージの内容をログファイルに追記
+                chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv'
+                with open(chat_log_file_path, 'a') as f:
+                    print(message, file=f)
+                #最新のログを取得
+                with open(chat_log_file_path, 'r') as f:
+                    chat_logs = f.readlines()
+                    print('chat_logs:\n', chat_logs)
+                    chat_logs = [line.rstrip('\n') for line in chat_logs]
+
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to Send the chat message.',
+                        'chat_log': chat_logs
+                    }
+                }
+            except KeyError as e:
+                print(e)
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to send the chat message.',
+                        'chat_log': []
+                    }
+                }
+
         #-------------#
         # update_chat #
         #-------------#
@@ -271,16 +333,23 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 chat_room_id = form['chat_room_id'].value
                 # TODO:
                 #   チャットルームIDのDBを参照して最新のチャットログを取得，配列に変換
+                chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv';
+                chat_logs = []
+                with open(chat_log_file_path, 'r') as f:
+                    chat_logs = f.readlines()
+                    chat_logs = [line.rstrip('\n') for line in chat_logs]
+
+
                 response_body = {
                     'cmd': cmd,
                     'data': {
                         'result': 'success',
                         'message': 'Successfully to update the chat log.',
-                        'chat_log': []
+                        'chat_log': chat_logs
                     }
                 }
-            except:
-                logger.error('Failed to update the chat log.')
+            except (KeyError, FileNotFoundError) as e:
+                print(e)
                 response_body = {
                     'cmd': cmd,
                     'data': {
@@ -289,10 +358,10 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'chat_log': []
                     }
                 }
-
+            
 
         #----------------#
-        # Exit_chat_room #
+        # exit_chat_room #
         #----------------#
         elif cmd == 'exit_chat_room':
             try:
@@ -306,9 +375,8 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'message': 'Successfully to exit the chat room.',
                     }
                 }
-            except:
-                print('[ERROR] Error occured in exit_chat_room')
-                logger.error('Error occured in exit_chat_room')
+            except KeyError as e:
+                print(e)
                 response_body = {
                     'cmd': cmd,
                     'data': {

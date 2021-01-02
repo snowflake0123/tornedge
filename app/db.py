@@ -208,21 +208,14 @@ class DBHandler():
                 WHERE image_id = %d
             ''' % image_id)
             conn.commit()
-            res = curs.fetchone()[0]
+            res = curs.fetchone()
+            if res is not None:
+                res = res[0]
+            else:
+                res = ''
         except sqlite3.OperationalError: self.show_error_message()
         conn.close()
         return res
 
 
-    def create_chat_room_db_table(self, chat_room_id):
-        conn = sqlite3.connect(self.db_name)
-        cur  = conn.cursor()
-        table_name = chat_room_id
-        try:
-            cur.execute('''
-                CREATE TABLE IF NOT EXISTS %s(image_id INTEGER, text TEXT);
-            ''')
-            conn.commit()
-        except sqlite3.OperationalError as e:
-            print(e)
-            self.show_error_message()
+    
