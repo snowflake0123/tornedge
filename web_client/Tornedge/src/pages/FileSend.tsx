@@ -33,12 +33,11 @@ const FileSend: React.FC = () => {
     const formData = generateFormData("cmd", "upload_file",
                                       "image_id", imageID,
                                       "file", fileData);
-    // TODO: サーバに formData を POST する
-    // axios.post("http://localhost:56060", formData).then((response) => {
-    //   console.log('body:', response.data);
-    // }).catch((error) => {
-    //   console.log(error);
-    // });
+    axios.post("http://localhost:56060", formData).then((response) => {
+      console.log('body:', response.data);
+    }).catch((error) => {
+      console.log(error);
+    });
   };
 
   const [fileData, setFileData] = useState<File | null>(null)

@@ -29,22 +29,15 @@ const FileReceive: React.FC = () => {
     const imageID = localStorage.getItem("image_id")
     const formData = generateFormData("cmd", "download_file",
                                       "image_id", imageID);
-    // TODO: サーバに formData を POST する
-    // axios.post("http://localhost:56060", formData).then((response) => {
-    //   console.log('body:', response.data);
-    //   const fPath = "responceのfile_path";
-    //   setFilePath(fPath);
-    //   setFileName(path.basename(fPath));
-    //   setFileExists(true);
-    // }).catch((error) => {
-    //   console.log(error);
-    // });
-
-    // ----- For debug only. -----
-    // const fPath = "./../../../../app/simulator/default.jpg";
-    // setFilePath(fPath);
-    // setFileName(path.basename(fPath));
-    // setFileExists(true);
+    axios.post("http://localhost:56060", formData).then((response) => {
+      console.log('body:', response.data);
+      const fPath = response.data['data']['file_path'];
+      setFilePath(fPath);
+      setFileName(path.basename(fPath));
+      setFileExists(true);
+    }).catch((error) => {
+      console.log(error);
+    });
   };
 
   return (

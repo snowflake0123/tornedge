@@ -157,7 +157,8 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'message': 'The File has been uploaded.',
                     }
                 }
-            except:
+            except KeyError as e:
+                print(e)
                 response_body = {
                     'cmd': cmd,
                     'data': {
@@ -172,13 +173,12 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         elif cmd == 'download_file':
             try:
                 image_id = int(form['image_id'].value)
-                # TODO:
-                #  image_idの紙片とfile_pathがある紙片とでマッチング処理をする
-                #  マッチング相手のfile_pathの値を返す
+
                 input_image_id_features = self.server.get_features_by_image_id(image_id)
                 candidates_features = self.server.get_features_file_path_exists()
 
-                matched_image_id = self.server.matcher.match(input_image_id_features, candidates_features, use_fp=True)
+                matched_image_id = self.server.matcher.match(input_image_id_features, candidates_features, use_fh=True)
+                print('matched_image_id =', matched_image_id)
 
                 file_path = self.server.get_file_path_by_image_id(matched_image_id)
 
@@ -190,7 +190,8 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'file_path': file_path
                     }
                 }
-            except:
+            except KeyError as e:
+                print(e)
                 logger.error('Failed to download the file.');
                 response_body = {
                     'cmd': cmd,
@@ -223,7 +224,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     }
                 }
             except KeyError as e:
-                print(e.args[1])
+                print(e)
                 logger.error('Failed to create the chat room.')
                 response_body = {
                     'cmd': cmd,

@@ -55,7 +55,7 @@ class DBHandler():
         try:
             curs.execute('''
                 UPDATE paper
-                SET file_path = %s
+                SET file_path = '%s'
                 WHERE image_id = %d
             ''' % (file_path, image_id))
             conn.commit()
@@ -69,7 +69,7 @@ class DBHandler():
         try:
             curs.execute('''
                 UPDATE paper
-                SET chat_room_id = %s
+                SET chat_room_id = '%s'
                 WHERE image_id = %d
             ''' % (chat_room_id, image_id))
             conn.commit()
@@ -148,12 +148,20 @@ class DBHandler():
         res  = ''
         try:
             curs.execute('''
-                SELECT fs_x, fs_y, fh, fa, fp FROM paper
-                WHERE id = %d
+                SELECT * FROM paper
+                WHERE image_id = %d
             ''' % image_id)
             conn.commit()
             res = curs.fetchone()
-        except sqlite3.OperationalError: self.show_error_message()
+            res = {'shape_x': list(map(float, res[2].split(','))),
+                   'shape_y': list(map(float, res[3].split(','))),
+                   'height': res[4],
+                   'angle': res[5],
+                   'position': list(map(int, res[6].split(',')))
+                   }
+        except sqlite3.OperationalError as e:
+            print(e)
+            self.show_error_message()
         conn.close()
         return res
 
@@ -165,7 +173,7 @@ class DBHandler():
         try:
             curs.execute('''
                 SELECT registered_date FROM paper
-                WHERE id = %d
+                WHERE image_id = %d
             ''' % image_id)
             conn.commit()
             res = curs.fetchone()[0]
@@ -181,7 +189,7 @@ class DBHandler():
         try:
             curs.execute('''
                 SELECT file_path FROM paper
-                WHERE id = %d
+                WHERE image_id = %d
             ''' % image_id)
             conn.commit()
             res = curs.fetchone()[0]
@@ -197,38 +205,13 @@ class DBHandler():
         try:
             curs.execute('''
                 SELECT chat_room_id FROM paper
-                WHERE id = %d
+                WHERE image_id = %d
             ''' % image_id)
             conn.commit()
             res = curs.fetchone()[0]
         except sqlite3.OperationalError: self.show_error_message()
         conn.close()
         return res
-
-
-    # def register_chat_room_id(self, image_id):
-    #     # Create random ID using datatime and uuid4
-    #     from datetime import datetime
-    #     from uuid import uuid4
-    #     chat_room_id = datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
-    #     # Register chat_room_id to database
-    #     conn = sqlite3.connect(self.db_name)
-    #     curs = conn.cursor()
-    #     res = ''
-    #     try:
-    #         curs.execute('''
-    #             UPDATE paper
-    #             SET chat_room_id='%s'
-    #             WHERE image_id=%d
-    #         ''' % (chat_room_id, int(image_id)))
-    #         conn.commit()
-    #         res = chat_room_id
-    #     except sqlite3.OperationalError as e:
-    #         print(e)
-    #         self.show_error_message()
-
-    #     conn.close()
-    #     return res
 
 
     def create_chat_room_db_table(self, chat_room_id):
