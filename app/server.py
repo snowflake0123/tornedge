@@ -106,10 +106,72 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         cmd = form['cmd'].value
         print('[info] Recieve data from client------')
         print('cmd: ', cmd)
+        #----------------------#
+        # debug_make_stub_data #
+        #----------------------#
+        if cmd == 'debug_create_stub_data':
+            image = form['image'].value
+            file_name = form['file'].filename
+            file_data = form['file'].value
+            try:
+                registered_date = dt.datetime.now()
+
+                # 紙片の特徴量を抽出する
+                features = self.extract_features(image)
+
+                #　特徴量をDBに保存し，image_idを取得
+                file_path = ''
+                chat_room_id = ''
+                data = [registered_date, *features.values(), file_path, chat_room_id]
+                image_id = int(self.server.register_and_get_image_id(data))
+
+                # ファイルを保存, pathを取得してDBに格納
+                self.save_content_file(file_name, file_data)
+                file_path = './client_data/files/' + file_name
+                self.server.set_file_path_by_image_id(image_id, file_path)
+                
+                # チャットルームIDを生成，DBに登録
+                chat_room_id = self.server.get_chat_room_id_by_image_id(image_id)
+                if chat_room_id == '':
+                    # chat_room_idを作成し，DBのimage_idの行に値を登録
+                    from datetime import datetime
+                    from uuid import uuid4
+                    chat_room_id = 'chat_room' + datetime.now().strftime('%Y%m-%d%H-%M%S-') + str(uuid4())
+                    chat_room_id =  chat_room_id.replace('-', '_')
+                    self.server.set_chat_room_id_by_image_id(image_id, chat_room_id)
+                    # chat_room_idを元にログを記録するファイルを作成
+                    chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv' 
+                    # ログファイルの内容を初期化
+                    with open(chat_log_file_path, 'w') as f:
+                        print('%s, The chat room was created.' % image_id, file=f)
+
+                # image_idとチャットルームidを返す
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'success',
+                        'message': 'Successfully to create the stub data',
+                        'image_id': image_id,
+                        'chat_room_id': chat_room_id
+                    }
+                }
+
+            except KeyError as e:
+                print(e)
+                response_body = {
+                    'cmd': cmd,
+                    'data': {
+                        'result': 'failure',
+                        'message': 'Failed to create the stub data.',
+                        'image_id': '',
+                        'chat_room_id': ''
+                    }
+                }
+
         #--------------#
         # Upload_image #
         #--------------#
-        if cmd == 'upload_image':
+        elif cmd == 'upload_image':
             try:
                 image = form['image'].value
 
@@ -214,7 +276,6 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
             try:
                 image_id = int(form['image_id'].value.replace('\"', ''))
 
-                # TODO:
                 chat_room_id = self.server.get_chat_room_id_by_image_id(image_id)
                 if chat_room_id == '':
                     # chat_room_idを作成し，DBのimage_idの行に値を登録
