@@ -8,7 +8,7 @@ __copyright__ = 'Copyright (c) 2020 Miyata Lab.'
 # Related third party imports.
 import cv2
 import numpy as np
-from pymatting import alpha
+#from pymatting import alpha
 import pathlib
 import sys
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -16,8 +16,8 @@ from tensorflow.keras.preprocessing.image import img_to_array
 # Local application/library specific imports.
 current_dir = pathlib.Path(__file__).resolve().parent
 sys.path.append(str(current_dir))
-import morphology
-import image_binarizer as binarizer
+#import morphology
+#import image_binarizer as binarizer
 
 
 class CharacterDetector():
