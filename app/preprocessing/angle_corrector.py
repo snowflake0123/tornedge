@@ -4,7 +4,6 @@
 __author__    = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2020 Miyata Lab.'
 
-
 # Related third party imports.
 import cv2
 import numpy as np

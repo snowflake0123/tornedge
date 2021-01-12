@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-__author__ = 'Shion Tominaga'
+__author__    = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2019-2020 Miyata Lab.'
-
 
 # Standard library imports.
 import argparse

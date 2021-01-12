@@ -4,7 +4,6 @@
 __author__    = 'Shion Tominaga and Akihiro Miyata'
 __copyright__ = 'Copyright (c) 2018-2021 Miyata Lab.'
 
-
 # Standard library imports.
 import logging
 import sqlite3

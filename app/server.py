@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__ = 'Shion Tominaga, Kazuki Okugawa and Akihiro Miyata'
+__author__    = 'Shion Tominaga, Kazuki Okugawa and Akihiro Miyata'
 __copyright__ = 'Copyright (c) 2018-2021 Miyata Lab.'
-
 
 # Standard library imports.
 import cgi
@@ -12,10 +11,14 @@ import http.server as hs
 import json
 import logging
 import os
+import pathlib
 import socketserver as scts
+import sys
 from urllib.parse import urlparse
 
 # Local application/library specific imports.
+current_dir = pathlib.Path(__file__).resolve().parent
+sys.path.append(str(current_dir))
 import engine
 import image
 import image_processing_manager as ipm

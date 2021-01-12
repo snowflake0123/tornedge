@@ -4,7 +4,6 @@
 __author__    = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2018-2019 Miyata Lab.'
 
-
 # Standard library imports.
 import io
 

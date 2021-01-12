@@ -4,15 +4,18 @@
 __author__    = 'Shion Tominaga and Akihiro Miyata'
 __copyright__ = 'Copyright (c) 2018-2020 Miyata Lab.'
 
-
 # Standard library imports.
 import argparse
 import configparser as cp
 import logging
 import logging.config
+import pathlib
+import sys
 import threading as th
 
 # Local application/library specific imports.
+current_dir = pathlib.Path(__file__).resolve().parent
+sys.path.append(str(current_dir))
 import db
 import server
 
