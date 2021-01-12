@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import feature_extraction.position_feature_extractor as position_feature_extractor
-import feature_extraction.angle_feature_extractor as angle_feature_extractor
-import feature_extraction.height_feature_extractor as height_feature_extractor
-import feature_extraction.shape_feature_extractor as shape_feature_extractor
-import preprocessing.tear_extractor as tear_extractor
-import preprocessing.both_ends_of_tear_finder as both_ends_of_tear_finder
-import preprocessing.piece_of_paper_part_extractor as piece_of_paper_part_extractor
-import preprocessing.angle_corrector as angle_corrector
-import preprocessing.image_binarizer as image_binarizer
-import preprocessing.image_filter as image_filter
-from tensorflow.keras.models import load_model
-import segmentation_models as sm
-import sys
-import pathlib
-import os
-import logging
-import argparse
+
 __author__ = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2019-2020 Miyata Lab.'
 
 
 # Standard library imports.
+import argparse
+import logging
+import os
+import pathlib
+import sys
 
 # Related third party imports.
 import cv2
+import segmentation_models as sm
+from tensorflow.keras.models import load_model
 
 # Local application/library specific imports.
 current_dir = pathlib.Path(__file__).resolve().parent
 sys.path.append(str(current_dir))
+import feature_extraction.angle_feature_extractor as angle_feature_extractor
+import feature_extraction.height_feature_extractor as height_feature_extractor
+import feature_extraction.position_feature_extractor as position_feature_extractor
+import feature_extraction.shape_feature_extractor as shape_feature_extractor
+import preprocessing.angle_corrector as angle_corrector
+import preprocessing.both_ends_of_tear_finder as both_ends_of_tear_finder
+import preprocessing.image_binarizer as image_binarizer
+import preprocessing.image_filter as image_filter
+import preprocessing.piece_of_paper_part_extractor as piece_of_paper_part_extractor
+import preprocessing.tear_extractor as tear_extractor
 
 
 logger = logging.getLogger(__name__)
