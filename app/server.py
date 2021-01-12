@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import image_processing_manager as ipm
-import image
-import engine
-from urllib.parse import urlparse
-import socketserver as scts
-import os
-import logging
-import json
-import http.server as hs
-import datetime as dt
-import cgi
-__author__ = 'Shion Tominaga and Akihiro Miyata'
-__copyright__ = 'Copyright (c) 2018-2020 Miyata Lab.'
+__author__ = 'Shion Tominaga, Kazuki Okugawa and Akihiro Miyata'
+__copyright__ = 'Copyright (c) 2018-2021 Miyata Lab.'
 
 
 # Standard library imports.
+import cgi
+import datetime as dt
+import http.server as hs
+import json
+import logging
+import os
+import socketserver as scts
+from urllib.parse import urlparse
 
 # Local application/library specific imports.
+import engine
+import image
+import image_processing_manager as ipm
 
 
 logger = logging.getLogger(__name__)
@@ -119,7 +119,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 # 紙片の特徴量を抽出する
                 features = self.extract_features(image)
 
-                #　特徴量をDBに保存し，image_idを取得
+                # 特徴量をDBに保存し，image_idを取得
                 file_path = ''
                 chat_room_id = ''
                 data = [registered_date, *features.values(), file_path, chat_room_id]
@@ -129,7 +129,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 self.save_content_file(file_name, file_data)
                 file_path = './client_data/files/' + file_name
                 self.server.set_file_path_by_image_id(image_id, file_path)
-                
+
                 # チャットルームIDを生成，DBに登録
                 chat_room_id = self.server.get_chat_room_id_by_image_id(image_id)
                 if chat_room_id == '':
@@ -140,7 +140,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     chat_room_id =  chat_room_id.replace('-', '_')
                     self.server.set_chat_room_id_by_image_id(image_id, chat_room_id)
                     # chat_room_idを元にログを記録するファイルを作成
-                    chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv' 
+                    chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv'
                     # ログファイルの内容を初期化
                     with open(chat_log_file_path, 'w') as f:
                         print('%s, The chat room was created.' % image_id, file=f)
@@ -202,6 +202,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'image_id': ''
                     }
                 }
+
         #-------------#
         # upload_file #
         #-------------#
@@ -239,11 +240,11 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
         elif cmd == 'download_file':
             try:
                 image_id = int(form['image_id'].value)
-                #特徴量を抽出する
+                # 特徴量を抽出する
                 input_image_id_features = self.server.get_features_by_image_id(image_id)
-                #file_pathが存在する紙片データを抜き出す
+                # file_pathが存在する紙片データを抜き出す
                 candidates_features = self.server.get_features_file_path_exists()
-                #マッチング処理を行う
+                # マッチング処理を行う
                 matched_image_id = self.server.matcher.match(input_image_id_features, candidates_features, use_fh=True)
                 print('matched_image_id =', matched_image_id)
 
@@ -285,7 +286,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     chat_room_id =  chat_room_id.replace('-', '_')
                     self.server.set_chat_room_id_by_image_id(image_id, chat_room_id)
                     # chat_room_idを元にログを記録するファイルを作成
-                    chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv' 
+                    chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv'
                     # ログファイルの内容を初期化
                     with open(chat_log_file_path, 'w') as f:
                         print('%s, The chat room was created.' % image_id, file=f)
@@ -329,7 +330,7 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                 partner_chat_room_id = self.server.get_chat_room_id_by_image_id(matched_image_id)
                 # マッチング相手のchat_room_idを初期化する
                 self.server.set_chat_room_id_by_image_id(matched_image_id, '')
-                
+
                 print('partner_chat_room_id = ', partner_chat_room_id)
                 response_body = {
                     'cmd': cmd,
@@ -357,11 +358,11 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
             try:
                 chat_room_id = form['chat_room_id'].value
                 message = form['message'].value
-                #メッセージの内容をログファイルに追記
+                # メッセージの内容をログファイルに追記
                 chat_log_file_path = './client_data/chat_logs/' + chat_room_id + '.csv'
                 with open(chat_log_file_path, 'a') as f:
                     print(message, file=f)
-                #最新のログを取得
+                # 最新のログを取得
                 with open(chat_log_file_path, 'r') as f:
                     chat_logs = f.readlines()
                     print('chat_logs:\n', chat_logs)
@@ -400,7 +401,6 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                     chat_logs = f.readlines()
                     chat_logs = [line.rstrip('\n') for line in chat_logs]
 
-
                 response_body = {
                     'cmd': cmd,
                     'data': {
@@ -419,7 +419,6 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'chat_log': []
                     }
                 }
-            
 
         #----------------#
         # exit_chat_room #
@@ -445,77 +444,6 @@ class TearingHandler(hs.SimpleHTTPRequestHandler):
                         'message': 'Failed to exit the chat room.',
                     }
                 }
-
-        # client_type = form['type'].value
-        # client_receiptname = form['receipt'].filename
-        # client_receiptdata = form['receipt'].value
-        # client_imagename = form['image'].filename
-        # client_imagedata = form['image'].value
-
-        # logger.info('Receipt name: %s' % client_receiptname)
-        # print('Receipt name: %s' % client_receiptname)
-
-        #--------#
-        # Sender #
-        #--------#
-        # if client_type == 'sender':
-        #     if client_receiptdata == 'undefined' or client_imagedata == 'undefined':
-        #         response_body = self.make_message_response_body(
-        #             '[ERROR] Receipt/image is not attached.')
-        #     else:
-        #         # Saves the content image.
-        #         client_imagename = dt.datetime.now().strftime(
-        #             '%Y%m%d_%H%M%S%f_') + client_imagename
-        #         self.save_content_image(client_imagename, client_imagedata)
-
-        #         # Calculates the receipt features and stores them into the DB.
-        #         features = self.extract_features(client_receiptdata)
-        #         logger.info('Sender receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % (features['shape_x'],
-        #                                                                                                   features['shape_y'],
-        #                                                                                                   features['height'],
-        #                                                                                                   features['angle'],
-        #                                                                                                   features['position']))
-        #         self.server.register((features['shape_x'],
-        #                               features['shape_y'],
-        #                               features['height'],
-        #                               features['angle'],
-        #                               features['position'],
-        #                               client_imagename))
-        #         response_body = self.make_message_response_body(
-        #             'Upload success.')
-
-        # #----------#
-        # # Receiver #
-        # #----------#
-        # elif client_type == 'receiver':
-        #     if client_receiptdata == 'undefined':
-        #         response_body = self.make_message_response_body(
-        #             '[ERROR] Receipt is not attached.')
-        #     else:
-        #         # Calculates the receipt features.
-        #         features = self.extract_features(client_receiptdata)
-        #         logger.info('Receiver receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % (features['shape_x'],
-        #                                                                                                     features['shape_y'],
-        #                                                                                                     features['height'],
-        #                                                                                                     features['angle'],
-        #                                                                                                     features['position']))
-
-        #         # Gets the matched receipt ID.
-        #         candidates = self.server.get_all_features()
-        #         matched_id = self.server.matcher.match(
-        #             features, candidates, use_fp=True)
-
-        #         # Makes the response that contains the matched image name.
-        #         matched_image_name = self.server.get_image_path(matched_id)
-        #         matched_features = self.server.get_features_by_id(matched_id)
-        #         logger.info('Matched image name: %s' % matched_image_name)
-        #         logger.info(
-        #             'Matched receipt features: fs_x = %s, fs_y = %s, fh = %f, fa = %f, fp = %s' % matched_features)
-        #         imagepath = './client_data/files/' + matched_image_name
-        #         response = {'imagepath': imagepath,
-        #                     'imagename': matched_image_name}
-        #         response_body = json.dumps(response)
-        #         print('Matched Image Name: %s' % matched_image_name)
 
         #--------------#
         # Invalid role #
