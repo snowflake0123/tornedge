@@ -12,7 +12,6 @@ import sys
 # Related third party imports.
 import cv2
 import numpy as np
-# from pylsd.lsd import lsd
 
 
 logger = logging.getLogger(__name__)
@@ -83,20 +82,6 @@ class BothEndsOfTearFinder():
         gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         edges      = cv2.Canny(gray_image, 0, 0, apertureSize=7, L2gradient=True)
         lines      = cv2.HoughLines(edges, 1, np.pi/400, 60)
-
-        # # angle_corrector.py の calc_extension_points メソッドを使って綺麗に書く
-        # img3 = image.copy()
-        # img4 = image.copy()
-        # linesL = lsd(gray_image)
-        # for line in linesL:
-        #     x1, y1, x2, y2 = map(int,line[:4])
-        #     img3 = cv2.line(img3, (x1,y1), (x2,y2), (0,0,255), 3)
-        #     if (x2-x1)**2 + (y2-y1)**2 > 10000:
-        #         # 赤線を引く
-        #         print('x1:%f y1:%f x2:%f y2:%f' % (x1, y1, x2, y2))
-        #         img4 = cv2.line(img4, (x1,y1), (x2,y2), (0,0,255), 3)
-        # cv2.imwrite('img3.jpg', img3)
-        # cv2.imwrite('img4.jpg', img4)
 
         try:
             if lines is None: raise Exception
