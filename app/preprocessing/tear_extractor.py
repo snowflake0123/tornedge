@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import math
-import cv2
-import numpy as np
-import pathlib
-import sys
-current_dir = pathlib.Path(__file__).resolve().parent
-sys.path.append(str(current_dir))
-import morphology
+
 
 __author__ = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2020 Miyata Lab.'
 
 
 # Standard library imports.
+import math
+import pathlib
+import sys
 
 # Related third party imports.
+import cv2
+import numpy as np
 
 # Local application/library specific imports.
+current_dir = pathlib.Path(__file__).resolve().parent
+sys.path.append(str(current_dir))
+import morphology
 
 
 class TearExtractor():
