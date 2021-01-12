@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author__    = 'Akihiro Miyata and Shion Tominaga'
-__copyright__ = 'Copyright (c) 2018-2020 Miyata Lab.'
+__author__    = 'Shion Tominaga and Akihiro Miyata'
+__copyright__ = 'Copyright (c) 2018-2021 Miyata Lab.'
 
 
 # Standard library imports.
@@ -216,6 +216,3 @@ class DBHandler():
         except sqlite3.OperationalError: self.show_error_message()
         conn.close()
         return res
-
-
-    
