@@ -4,7 +4,6 @@
 __author__    = 'Shion Tominaga'
 __copyright__ = 'Copyright (c) 2019-2020 Miyata Lab.'
 
-
 # Standard library imports.
 import argparse
 import logging
@@ -20,16 +19,16 @@ from tensorflow.keras.models import load_model
 # Local application/library specific imports.
 current_dir = pathlib.Path(__file__).resolve().parent
 sys.path.append(str(current_dir))
-import preprocessing.image_filter as image_filter
-import preprocessing.image_binarizer as image_binarizer
-import preprocessing.angle_corrector as angle_corrector
-import preprocessing.piece_of_paper_part_extractor as piece_of_paper_part_extractor
-import preprocessing.both_ends_of_tear_finder as both_ends_of_tear_finder
-import preprocessing.tear_extractor as tear_extractor
-import feature_extraction.shape_feature_extractor as shape_feature_extractor
-import feature_extraction.height_feature_extractor as height_feature_extractor
 import feature_extraction.angle_feature_extractor as angle_feature_extractor
+import feature_extraction.height_feature_extractor as height_feature_extractor
 import feature_extraction.position_feature_extractor as position_feature_extractor
+import feature_extraction.shape_feature_extractor as shape_feature_extractor
+import preprocessing.angle_corrector as angle_corrector
+import preprocessing.both_ends_of_tear_finder as both_ends_of_tear_finder
+import preprocessing.image_binarizer as image_binarizer
+import preprocessing.image_filter as image_filter
+import preprocessing.piece_of_paper_part_extractor as piece_of_paper_part_extractor
+import preprocessing.tear_extractor as tear_extractor
 
 
 logger = logging.getLogger(__name__)
@@ -43,30 +42,35 @@ AVAILABLE_MAX_IMAGE_SIZE = (1080, 1440)
 class ImageProcessingManager():
     # Preload the estimator for binarization only once here.
     ss_estimator = load_model(os.path.join(current_dir, 'preprocessing/ss_model.h5'), custom_objects={
-                              'binary_focal_loss_plus_dice_loss':sm.losses.binary_focal_dice_loss,
-                              'iou_score':sm.metrics.IOUScore(),
-                              'f1-score':sm.metrics.FScore()})
+                              'binary_focal_loss_plus_dice_loss': sm.losses.binary_focal_dice_loss,
+                              'iou_score': sm.metrics.IOUScore(),
+                              'f1-score': sm.metrics.FScore()})
 
     def __init__(self, image, debug=False):
-        self.DEBUG_FLAG   = debug
+        self.DEBUG_FLAG = debug
 
-        self.IMAGE_WIDTH  = image.shape[1]
+        self.IMAGE_WIDTH = image.shape[1]
         self.IMAGE_HEIGHT = image.shape[0]
-        self.DRAWING_RATE = int(self.IMAGE_WIDTH / AVAILABLE_MAX_IMAGE_SIZE[0]) # 円・直線などの図形の描画比率
+        self.DRAWING_RATE = int(
+            self.IMAGE_WIDTH / AVAILABLE_MAX_IMAGE_SIZE[0])  # 円・直線などの図形の描画比率
         self.IMG_SAVE_CNT = 0
 
-        self.img_filter               = image_filter.ImageFilter(self)
-        self.img_binarizer            = image_binarizer.ImageBinarizer(self, self.ss_estimator)
-        self.angle_corrector          = angle_corrector.AngleCorrector(self)
-        self.p_o_p_part_extractor     = piece_of_paper_part_extractor.PieceOfPaperPartExtractor(self)
-        self.both_ends_of_tear_finder = both_ends_of_tear_finder.BothEndsOfTearFinder(self)
-        self.tear_extractor           = tear_extractor.TearExtractor(self)
+        self.img_filter = image_filter.ImageFilter(self)
+        self.img_binarizer = image_binarizer.ImageBinarizer(
+            self, self.ss_estimator)
+        self.angle_corrector = angle_corrector.AngleCorrector(self)
+        self.p_o_p_part_extractor = piece_of_paper_part_extractor.PieceOfPaperPartExtractor(
+            self)
+        self.both_ends_of_tear_finder = both_ends_of_tear_finder.BothEndsOfTearFinder(
+            self)
+        self.tear_extractor = tear_extractor.TearExtractor(self)
 
-        self.fs_extractor             = shape_feature_extractor.ShapeFeatureExtractor(self)
-        self.fh_extractor             = height_feature_extractor.HeightFeatureExtractor(self)
-        self.fa_extractor             = angle_feature_extractor.AngleFeatureExtractor(self)
-        self.fp_extractor             = position_feature_extractor.PositionFeatureExtractor(self)
-
+        self.fs_extractor = shape_feature_extractor.ShapeFeatureExtractor(self)
+        self.fh_extractor = height_feature_extractor.HeightFeatureExtractor(
+            self)
+        self.fa_extractor = angle_feature_extractor.AngleFeatureExtractor(self)
+        self.fp_extractor = position_feature_extractor.PositionFeatureExtractor(
+            self)
 
     def get_debug_flag_status(self):
         """
@@ -83,7 +87,6 @@ class ImageProcessingManager():
         """
         return self.DEBUG_FLAG
 
-
     def get_image_width(self):
         """
         self.IMAGE_WIDTHの値を返す
@@ -99,7 +102,6 @@ class ImageProcessingManager():
         """
         return self.IMAGE_WIDTH
 
-
     def get_image_height(self):
         """
         self.IMAGE_HEIGHTの値を返す
@@ -114,7 +116,6 @@ class ImageProcessingManager():
             入力画像の高さ（px）。
         """
         return self.IMAGE_HEIGHT
-
 
     def do_preprocessing(self, src_image):
         """
@@ -136,25 +137,29 @@ class ImageProcessingManager():
         image = src_image.copy()
 
         if self.DEBUG_FLAG:
-            cv2.imwrite(str(self.IMG_SAVE_CNT).zfill(2) + '_original.jpg', image)
+            cv2.imwrite(str(self.IMG_SAVE_CNT).zfill(
+                2) + '_original.jpg', image)
             self.IMG_SAVE_CNT += 1
 
         image = self.img_filter.do_smoothing(image)
         image = self.img_filter.reduct_color(image)
         basic_bin_image = self.img_binarizer.binarize(image, mode='basic_hsv')
-        bin_image = self.img_binarizer.binarize(image, mode='semantic_segmentation')
-        bin_image = self.p_o_p_part_extractor.extract_largest_white_area(bin_image)
+        bin_image = self.img_binarizer.binarize(
+            image, mode='semantic_segmentation')
+        bin_image = self.p_o_p_part_extractor.extract_largest_white_area(
+            bin_image)
         # bin_image = self.img_binarizer.matting(src_image, bin_image, trimap_param=20)
-        bin_image, left_end, right_end = self.angle_corrector.correct_angle(bin_image)
+        bin_image, left_end, right_end = self.angle_corrector.correct_angle(
+            bin_image)
         # bin_image = self.img_binarizer.denoise(bin_image, bin_th=64, close_param=5)
         # bin_image = self.p_o_p_part_extractor.remove_char(bin_image)
         preprocessed_image = bin_image
 
         # left_end, right_end = self.both_ends_of_tear_finder.detect_both_ends_of_tear(preprocessed_image)
-        tear_coordinates, edge_detected_image = self.tear_extractor.extract_tear(preprocessed_image, left_end, right_end)
+        tear_coordinates, edge_detected_image = self.tear_extractor.extract_tear(
+            preprocessed_image, left_end, right_end)
 
         return tear_coordinates, edge_detected_image, preprocessed_image
-
 
     def do_feature_extraction(self, tear_coordinates, edge_detected_image, image_for_drawing):
         """
@@ -175,16 +180,20 @@ class ImageProcessingManager():
         features : dict
             各種特徴量の名称を key ，各種特徴量の値を value とする辞書。
         """
-        shape_feature_x, shape_feature_y = self.fs_extractor.extract_shape_feature(tear_coordinates, image_for_drawing, skip=50)
-        height_feature                   = self.fh_extractor.extract_height_feature(tear_coordinates, image_for_drawing)
-        angle_feature                    = self.fa_extractor.extract_angle_feature(tear_coordinates, edge_detected_image, image_for_drawing)
-        position_feature                 = self.fp_extractor.extract_position_feature(tear_coordinates, image_for_drawing)
+        shape_feature_x, shape_feature_y = self.fs_extractor.extract_shape_feature(
+            tear_coordinates, image_for_drawing, skip=50)
+        height_feature = self.fh_extractor.extract_height_feature(
+            tear_coordinates, image_for_drawing)
+        angle_feature = self.fa_extractor.extract_angle_feature(
+            tear_coordinates, edge_detected_image, image_for_drawing)
+        position_feature = self.fp_extractor.extract_position_feature(
+            tear_coordinates, image_for_drawing)
 
         features = {}
-        features['shape_x']  = shape_feature_x
-        features['shape_y']  = shape_feature_y
-        features['height']   = height_feature
-        features['angle']    = angle_feature
+        features['shape_x'] = shape_feature_x
+        features['shape_y'] = shape_feature_y
+        features['height'] = height_feature
+        features['angle'] = angle_feature
         features['position'] = position_feature
 
         # --- For debug only. ---
@@ -196,7 +205,6 @@ class ImageProcessingManager():
         # --- For debug only. ---
 
         return features
-
 
     def extract_features(self, image):
         """
@@ -212,10 +220,11 @@ class ImageProcessingManager():
         features : dict
             各種特徴量の名称を key ，各種特徴量の値を value とする辞書。
         """
-        tear_coordinates, edge_detected_image, preprocessed_image = self.do_preprocessing(image)
-        features = self.do_feature_extraction(tear_coordinates, edge_detected_image, preprocessed_image)
+        tear_coordinates, edge_detected_image, preprocessed_image = self.do_preprocessing(
+            image)
+        features = self.do_feature_extraction(
+            tear_coordinates, edge_detected_image, preprocessed_image)
         return features
-
 
     def draw_lines(self, image, lines, color, weight):
         """
@@ -239,10 +248,11 @@ class ImageProcessingManager():
         """
         for line in lines:
             rho, theta = line[0]
-            end_points_of_line = self.both_ends_of_tear_finder.get_end_points_of_line(rho, theta)
+            end_points_of_line = self.both_ends_of_tear_finder.get_end_points_of_line(
+                rho, theta)
             end_point1, end_point2 = end_points_of_line
-            cv2.line(image, end_point1, end_point2, color, weight * self.DRAWING_RATE)
-
+            cv2.line(image, end_point1, end_point2,
+                     color, weight * self.DRAWING_RATE)
 
     def draw_circles(self, image, circles, size, color):
         """
@@ -281,7 +291,8 @@ if __name__ == '__main__':
     #--------------------------------#
     # Loads command line parameters. #
     #--------------------------------#
-    parser = argparse.ArgumentParser(description='The program of feature extraction from a piece of paper image.')
+    parser = argparse.ArgumentParser(
+        description='The program of feature extraction from a piece of paper image.')
     parser.add_argument('-i', '--image',
                         default='image.jpg',
                         help='Image file name')
@@ -295,7 +306,8 @@ if __name__ == '__main__':
         image = cv2.imread(imagename)
         image = cv2.resize(image, AVAILABLE_MAX_IMAGE_SIZE)
     except:
-        logger.error('[%s] FileOpenError: ' + imagename + ' could not be found.' % sys._getframe().f_code.co_name)
+        logger.error('[%s] FileOpenError: ' + imagename +
+                     ' could not be found.' % sys._getframe().f_code.co_name)
         sys.exit()
 
     #------------------------#

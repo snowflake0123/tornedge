@@ -35,7 +35,7 @@ const FileTop: React.FC<RouteComponentProps> = (props) => {
               <IonCardHeader>
                 <IonCardTitle className="ion-text-nowrap">Send</IonCardTitle>
               </IonCardHeader>
-              <IonIcon icon={cloudUpload} size="large"/>
+              <IonIcon icon={cloudUpload} className="larger-icon" />
               <IonCardContent>
               </IonCardContent>
             </IonCard>
@@ -44,7 +44,7 @@ const FileTop: React.FC<RouteComponentProps> = (props) => {
               <IonCardHeader>
                 <IonCardTitle className="ion-text-nowrap">Receive</IonCardTitle>
               </IonCardHeader>
-              <IonIcon icon={cloudDownload} size="large" />
+              <IonIcon icon={cloudDownload} className="larger-icon" />
               <IonCardContent>
               </IonCardContent>
             </IonCard>
